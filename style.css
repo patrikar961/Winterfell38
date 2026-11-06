@@ -1,0 +1,793 @@
+/* =========================================================
+   STYLE.CSS — Boutique Corner69
+   Même design, même palette : les couleurs viennent de theme.js
+   (variables --bg, --surface, --primary, --secondary, --accent…)
+   ========================================================= */
+
+:root{
+  --radius: 20px;
+  --radius-sm: 14px;
+  --ring: 0 0 0 4px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.6;
+  overflow-x:hidden;
+}
+a{color:var(--accent)}
+img{max-width:100%}
+.muted{color:var(--muted)}
+.small{font-size:.82rem}
+[hidden]{display:none !important}
+
+/* ---------------- Décor de fond ---------------- */
+
+.blobs{position:fixed;inset:0;z-index:-1;filter:blur(90px);opacity:.45;pointer-events:none}
+.blobs span{position:absolute;width:45vw;height:45vw;border-radius:50%;animation:float 18s ease-in-out infinite alternate}
+.blobs span:nth-child(1){background:var(--primary);top:-10%;left:-10%}
+.blobs span:nth-child(2){background:var(--secondary);bottom:-15%;right:-10%;animation-delay:-6s}
+.blobs span:nth-child(3){background:var(--accent);top:40%;left:40%;width:30vw;height:30vw;animation-delay:-12s}
+@keyframes float{to{transform:translate(8vw,6vh) scale(1.15)}}
+
+/* ---------------- Barre du haut ---------------- */
+
+.topbar{
+  position:sticky;top:0;z-index:20;
+  display:flex;align-items:center;gap:1rem;
+  padding:.8rem 5vw;
+  background:color-mix(in srgb,var(--bg) 75%,transparent);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+}
+.brand{display:flex;align-items:center;gap:.6rem;color:var(--text);text-decoration:none;font-weight:800}
+.brand img{width:38px;height:38px;border-radius:10px;object-fit:contain}
+.topbar nav{margin-left:auto;display:flex;gap:1.2rem}
+.topbar nav a{color:var(--text);text-decoration:none;font-weight:600;opacity:.85}
+.topbar nav a:hover{color:var(--primary);opacity:1}
+.cart-btn{
+  background:var(--gradient);border:0;color:#fff;font-weight:800;
+  padding:.5rem 1rem;border-radius:999px;cursor:pointer;
+  box-shadow:0 0 18px var(--glow);
+}
+
+/* ---------------- Hero ---------------- */
+
+.hero{display:grid;grid-template-columns:1.3fr 1fr;align-items:center;gap:3rem;padding:6rem 5vw 1.5rem}
+.badge{
+  display:inline-block;padding:.3rem .9rem;border-radius:999px;
+  background:var(--gradient);color:#fff;font-weight:800;
+  letter-spacing:.15em;font-size:.8rem;
+}
+h1{font-size:clamp(2.4rem,6vw,4.6rem);line-height:1.05;margin:1rem 0}
+h1 em{background:var(--gradient);-webkit-background-clip:text;background-clip:text;color:transparent;font-style:normal}
+.lead{font-size:1.2rem;color:var(--muted);margin-bottom:2rem}
+.hero-logo {
+  filter: drop-shadow(0 0 40px var(--primary));
+
+  animation:
+    logoEntrance 2.4s cubic-bezier(.2, .9, .3, 1.25) both,
+    pulse 4s ease-in-out 2.4s infinite;
+
+  will-change: transform, opacity;
+}
+
+@keyframes logoEntrance {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(-360deg);
+    filter: blur(10px) drop-shadow(0 0 0 transparent);
+  }
+
+  /* Premier grossissement, avec le tour de depart */
+  58% {
+    opacity: 1;
+    transform: scale(1.14) rotate(0deg);
+    filter: blur(0) drop-shadow(0 0 60px var(--primary));
+  }
+
+  /* Le tour en plus, juste avant le rebond */
+  76% {
+    transform: scale(1.2) rotate(360deg);
+    filter: blur(0) drop-shadow(0 0 75px var(--primary));
+  }
+
+  /* Recul */
+  86% {
+    transform: scale(.92) rotate(360deg);
+    filter: blur(0) drop-shadow(0 0 28px var(--primary));
+  }
+
+  /* Dernier rebond avec zoom */
+  94% {
+    transform: scale(1.08) rotate(360deg);
+    filter: blur(0) drop-shadow(0 0 70px var(--primary));
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(360deg);
+    filter: blur(0) drop-shadow(0 0 40px var(--primary));
+  }
+}
+
+@keyframes pulse{50%{transform:scale(1.05) rotate(3deg)}}
+
+/* ---------------- Boutons ---------------- */
+
+.btn{
+  display:inline-block;background:var(--gradient);color:#fff;border:0;
+  padding:.85rem 1.6rem;border-radius:14px;font-weight:800;font-size:1rem;
+  cursor:pointer;text-decoration:none;text-align:center;
+  transition:transform .2s,box-shadow .2s;
+  box-shadow:0 8px 25px var(--glow);
+}
+.btn:hover{transform:translateY(-3px);box-shadow:0 12px 35px var(--glow-2)}
+.btn:active{transform:translateY(0) scale(.99)}
+.btn:focus-visible{outline:none;box-shadow:var(--ring)}
+.btn.ghost{background:transparent;border:2px solid var(--primary);color:var(--text);box-shadow:none}
+.btn.ghost:hover{border-color:var(--secondary);color:var(--secondary)}
+.btn-block{width:100%;display:block}
+.btn[disabled]{opacity:.6;cursor:progress;transform:none}
+
+/* ---------------- Sections & cartes ---------------- */
+
+.section{padding:2rem 5vw}
+.section h2{
+  font-size:2.2rem;margin-bottom:1.5rem;display:inline-block;
+  background:var(--gradient);-webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.card{
+  background:color-mix(in srgb,var(--surface) 85%,transparent);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:1.5rem;
+  backdrop-filter:blur(10px);
+}
+
+/* ---------------- Lecteur vidéo ---------------- */
+
+.player{
+  position:relative;width:100%;max-width:960px;margin:auto;
+  border-radius:22px;overflow:hidden;background:#000;aspect-ratio:16/9;
+  box-shadow:0 0 0 3px var(--primary),0 20px 60px var(--glow);
+}
+.player video,.player iframe{width:100%;height:100%;display:block;border:0;background:#000;object-fit:contain}
+/* Une vidéo carrée garde tout son cadre visible, sans recadrage forcé. */
+.player.is-square{width:100%;max-width:620px;aspect-ratio:1/1}
+.player video{object-fit:contain;object-position:center}
+.vp-big{
+  position:absolute;inset:0;margin:auto;width:90px;height:90px;border-radius:50%;border:0;
+  background:var(--gradient);color:#fff;font-size:2.2rem;cursor:pointer;
+  transition:transform .2s,opacity .3s;
+}
+.vp-big:hover{transform:scale(1.1)}
+.player.playing .vp-big{opacity:0;pointer-events:none}
+.vp-controls{
+  position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;gap:.6rem;
+  padding:.7rem 1rem;background:linear-gradient(transparent,rgba(0,0,0,.85));transition:opacity .3s;
+}
+.player.playing.idle .vp-controls{opacity:0}
+.vp-controls button{background:none;border:0;color:#fff;font-size:1.2rem;cursor:pointer;min-width:32px}
+.vp-time{color:#fff;font-size:.85rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+.vp-progress{flex:1;accent-color:var(--primary);cursor:pointer}
+.vp-volume{width:80px;accent-color:var(--secondary)}
+.vp-error{position:absolute;inset:0;display:grid;place-items:center;color:#fff;text-align:center;padding:2rem}
+
+/* ---------------- Filtres & champs ---------------- */
+
+.filters{display:flex;flex-wrap:wrap;gap:1rem;margin-bottom:2rem}
+label{display:flex;flex-direction:column;gap:.35rem;font-weight:600;font-size:.9rem}
+input,select,textarea{
+  font:inherit;padding:.7rem .9rem;border-radius:12px;
+  border:2px solid var(--border);background:var(--surface);color:var(--text);
+}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:var(--ring)}
+textarea{min-height:90px;resize:vertical}
+select{appearance:none;-webkit-appearance:none;padding-right:2.2rem;
+  background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);
+  background-position:calc(100% - 18px) 52%,calc(100% - 13px) 52%;
+  background-size:5px 5px,5px 5px;background-repeat:no-repeat;
+}
+select option{background:var(--surface);color:var(--text)}
+.check{flex-direction:row;align-items:flex-start;gap:.6rem;font-weight:400}
+.check input{width:auto;accent-color:var(--primary);margin-top:.25rem}
+
+/* ---------------- Grille catalogue ---------------- */
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1.5rem}
+.product{display:flex;flex-direction:column;gap:.5rem;transition:transform .25s,box-shadow .25s}
+.product:hover{transform:translateY(-8px) rotate(-.5deg);box-shadow:0 20px 45px var(--glow)}
+
+/* Vignettes du catalogue : hauteur fixe, largeur imposée par la grille.
+   La photo entière reste visible ; l'écart éventuel est comblé par un fond
+   flouté de la photo elle-même, jamais par du noir. */
+.product .thumb{
+  width:100%;
+  aspect-ratio:4/3;
+  max-height:280px;
+  height:auto;
+  border-radius:var(--radius-sm);
+  display:grid;place-items:center;overflow:hidden;font-size:4rem;
+  background:transparent;      /* le fond flouté visible, plus d'aplat opaque */
+  position:relative;
+  isolation:isolate;
+}
+/* Vignettes catalogue : cadrage uniforme */
+
+.product .thumb{
+  width:100%;
+  height:180px;
+  aspect-ratio:auto;
+  max-height:none;
+  border-radius:var(--radius-sm);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  background:transparent;
+  position:relative;
+  isolation:isolate;
+}
+
+.product .thumb img,
+.product .thumb video{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center;
+  display:block;
+  position:relative;
+  z-index:1;
+}
+
+/* Variante portrait : la vignette suit la forme de la photo */
+.product .thumb.is-portrait{aspect-ratio:1/1}
+/* Le fond flouté se place à l'intérieur du cadre, sous la photo :
+   le carrousel fonctionne ainsi, le catalogue doit faire pareil. */
+.product .thumb::before{
+  content:"";position:absolute;inset:-15%;
+  z-index:0;
+  background-image:var(--thumb-bg,none);
+  background-size:cover;background-position:center;
+  filter:blur(24px) brightness(.5) saturate(1.25);
+  opacity:.9;
+  pointer-events:none;
+}
+.thumb-emoji{font-size:4rem;line-height:1}
+
+.product .cat{font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);font-weight:700}
+.product h3{font-size:1.15rem;line-height:1.3}
+.product .price{font-size:1.4rem;font-weight:900;color:var(--secondary)}
+.product .btn{margin-top:auto}
+.product-open{
+  display:flex;flex-direction:column;gap:.5rem;text-align:left;
+  background:none;border:0;color:inherit;cursor:pointer;font:inherit;width:100%;padding:0;
+}
+.product-open:focus-visible{outline:none;box-shadow:var(--ring);border-radius:12px}
+
+/* ---------------- Avis ---------------- */
+
+.reviews{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin:1.5rem 0}
+.review-head{display:flex;align-items:center;gap:.5rem;justify-content:space-between}
+.stars{color:var(--secondary);letter-spacing:.1em}
+.tag{font-size:.7rem;padding:.15rem .5rem;border-radius:6px;background:var(--accent);color:#000;font-weight:700}
+.form{display:flex;flex-direction:column;gap:1rem;max-width:560px}
+
+/* ---------------- Panier ---------------- */
+
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);opacity:0;pointer-events:none;transition:.3s;z-index:30}
+.overlay.show{opacity:1;pointer-events:auto}
+.drawer{
+  position:fixed;top:0;right:0;height:100%;width:min(420px,100%);
+  background:var(--surface);z-index:40;padding:1.5rem;
+  display:flex;flex-direction:column;gap:1rem;
+  transform:translateX(100%);transition:transform .35s;
+  border-left:3px solid var(--primary);overflow-y:auto;
+}
+.drawer.open{transform:none}
+.drawer-head{display:flex;justify-content:space-between;align-items:center;gap:1rem}
+.icon{background:none;border:0;color:var(--text);font-size:1.4rem;cursor:pointer;line-height:1}
+.icon:hover{color:var(--primary)}
+.line{
+  display:grid;grid-template-columns:minmax(0,1fr) auto auto;
+  align-items:center;gap:.7rem;padding:.6rem 0;
+  border-bottom:1px solid color-mix(in srgb,var(--muted) 30%,transparent);
+}
+.line-info{display:flex;flex-direction:column;min-width:0}
+.line-info strong{overflow-wrap:anywhere}
+.line-info small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qty{display:flex;align-items:center;gap:.45rem;white-space:nowrap;font-weight:800}
+.qty button{
+  width:28px;height:28px;border-radius:8px;border:0;
+  background:var(--primary);color:#fff;cursor:pointer;font-weight:900;
+}
+.qty button:hover{background:var(--secondary)}
+.line-total{white-space:nowrap;font-size:.95rem}
+.total{display:flex;justify-content:space-between;font-size:1.1rem;margin-top:auto}
+
+/* ---------------- Fenêtres (dialog) ---------------- */
+
+dialog{
+  margin:auto;border:0;border-radius:22px;background:var(--surface);color:var(--text);
+  padding:1.5rem;width:min(600px,94vw);border-top:5px solid var(--primary);
+}
+dialog::backdrop{background:rgba(0,0,0,.6);backdrop-filter:blur(4px)}
+
+.toast{
+  position:fixed;bottom:1.5rem;left:50%;transform:translate(-50%,150%);
+  background:var(--gradient);color:#fff;padding:.8rem 1.4rem;border-radius:14px;
+  font-weight:700;z-index:60;transition:transform .3s;max-width:90vw;text-align:center;
+}
+.toast.show{transform:translate(-50%,0)}
+footer{text-align:center;padding:2rem;color:var(--muted)}
+
+/* ---------------- Contact : icônes néon ---------------- */
+
+.contact-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.2rem;max-width:900px}
+.contact-card{display:flex;flex-direction:column;align-items:flex-start;gap:.8rem;position:relative;overflow:hidden}
+.contact-card::after{
+  content:"";position:absolute;inset:auto -30% -60% auto;width:180px;height:180px;border-radius:50%;
+  background:var(--gradient);filter:blur(60px);opacity:.35;pointer-events:none;
+}
+.contact-card .btn{margin-top:auto}
+.contact-icon{
+  width:64px;height:64px;display:grid;place-items:center;border-radius:18px;
+  background:color-mix(in srgb,#000 35%,var(--surface));
+  border:1px solid var(--border);
+  box-shadow:0 0 26px var(--glow),inset 0 0 22px color-mix(in srgb,var(--primary) 25%,transparent);
+  animation:neonPulse 3.2s ease-in-out infinite;
+}
+.contact-icon svg{width:40px;height:40px;display:block;filter:drop-shadow(0 0 7px var(--glow))}
+.contact-card:nth-child(2) .contact-icon{animation-delay:-1.6s}
+@keyframes neonPulse{
+  0%,100%{box-shadow:0 0 22px var(--glow),inset 0 0 18px color-mix(in srgb,var(--primary) 22%,transparent)}
+  50%{box-shadow:0 0 40px var(--glow-2),inset 0 0 26px color-mix(in srgb,var(--secondary) 30%,transparent)}
+}
+
+/* Boutons réseaux : couleur d'origine (bleu Telegram, vert WhatsApp), rendu néon */
+.btn-brand{
+  border:1px solid color-mix(in srgb, currentColor 45%, transparent);
+  text-shadow:0 0 10px rgba(255,255,255,.45);
+}
+.btn-brand.tg{
+  background:linear-gradient(135deg,#2AABEE 0%,#229ED9 55%,#1c8dc0 100%);
+  color:#fff;
+  box-shadow:0 8px 26px rgba(42,171,238,.55),0 0 0 1px rgba(42,171,238,.4);
+}
+.btn-brand.tg:hover{box-shadow:0 12px 38px rgba(42,171,238,.8)}
+.btn-brand.wa{
+  background:linear-gradient(135deg,#25D366 0%,#20b559 55%,#17a34a 100%);
+  color:#fff;
+  box-shadow:0 8px 26px rgba(37,211,102,.5),0 0 0 1px rgba(37,211,102,.4);
+}
+.btn-brand.wa:hover{box-shadow:0 12px 38px rgba(37,211,102,.75)}
+
+/* ---------------- Fiche produit : carrousel ---------------- */
+
+.product-dialog{max-height:92vh;overflow-y:auto;width:min(680px,94vw)}
+.product-dialog .drawer-head{margin-bottom:1rem}
+
+.detail-wrap{margin-bottom:1rem}
+.carousel{
+  position:relative;width:100%;
+  background:color-mix(in srgb,#000 70%,var(--surface));
+  border-radius:18px;overflow:hidden;
+  box-shadow:0 0 0 2px var(--border),0 18px 40px color-mix(in srgb,var(--primary) 22%,transparent);
+  touch-action:pan-y;
+  /* le cadre prend la hauteur exacte du média : aucune bande noire */
+  height:clamp(200px,62vw,380px);
+  transition:height .2s ease;
+}
+.carousel-track{width:100%;height:100%}
+.carousel-slide{width:100%;height:100%;display:flex;align-items:center;justify-content:center;animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+/* Le média remplit le cadre ; quand son format diffère, il est complété par
+   la même image agrandie et floutée au lieu de bandes noires. */
+.carousel-slide img,.carousel-slide video,.carousel-slide iframe{
+  width:100%;height:100%;object-fit:contain;object-position:center;
+  display:block;border:0;background:transparent;
+  position:relative;z-index:1;
+}
+/* halo de remplissage : reprend la photo, agrandie et floutée */
+.carousel-slide{
+  position:relative;overflow:hidden;
+  background-color:color-mix(in srgb,#000 70%,var(--surface));
+}
+.carousel-slide::before{
+  content:"";position:absolute;inset:-15%;z-index:0;
+  background-image:var(--slide-bg,none);
+  background-size:cover;background-position:center;
+  filter:blur(28px) brightness(.55) saturate(1.2);
+  transform:scale(1.15);
+  opacity:.9;
+  pointer-events:none;   /* le fond ne doit jamais capter les clics */
+}
+
+/* Vidéo verticale ou format inhabituel : l'image reste entière et le cadre se resserre */
+.carousel.is-portrait{height:clamp(280px,80vw,460px)}
+.carousel-nav{
+  position:absolute;top:50%;transform:translateY(-50%);
+  z-index:5;                /* toujours au-dessus du fond et du média */
+  width:42px;height:42px;border-radius:50%;border:0;cursor:pointer;
+  background:color-mix(in srgb,#000 55%,transparent);color:#fff;
+  font-size:1.6rem;line-height:1;display:grid;place-items:center;
+  backdrop-filter:blur(6px);transition:background .2s,transform .2s;
+}
+.carousel-nav:hover{background:var(--primary);transform:translateY(-50%) scale(1.08)}
+.carousel-nav.prev{left:.6rem}
+.carousel-nav.next{right:.6rem}
+.carousel-counter{
+  position:absolute;right:.7rem;bottom:.7rem;
+  background:color-mix(in srgb,#000 60%,transparent);color:#fff;
+  padding:.2rem .65rem;border-radius:999px;font-size:.8rem;font-weight:700;
+  backdrop-filter:blur(6px);
+}
+.detail-placeholder{
+  display:flex;flex-direction:column;align-items:center;gap:.8rem;
+  color:var(--muted);text-align:center;padding:1rem;
+}
+.ph-emoji{font-size:3.2rem;line-height:1}
+
+/* Miniatures du carrousel */
+.detail-thumbs{
+  display:flex;flex-wrap:nowrap;gap:.6rem;
+  overflow-x:auto;overflow-y:hidden;
+  padding:.6rem .2rem .4rem;margin-bottom:.5rem;
+  scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;
+}
+.detail-thumb{
+  position:relative;flex:0 0 78px;width:78px;height:64px;
+  border:2px solid transparent;border-radius:12px;background:var(--surface);
+  color:var(--text);cursor:pointer;overflow:hidden;font-size:.7rem;
+  scroll-snap-align:center;padding:0;
+}
+.detail-thumb img{width:100%;height:100%;object-fit:contain;display:block;background:#000}
+.detail-thumb.active{border-color:var(--primary);box-shadow:0 0 0 2px color-mix(in srgb,var(--primary) 25%,transparent)}
+.thumb-play{
+  position:absolute;inset:0;display:grid;place-items:center;
+  background:rgba(0,0,0,.45);color:#fff;font-size:1rem;
+}
+.thumb-play.only{background:transparent;color:var(--muted)}
+
+/* ---------------- Fiche produit : variantes & quantité ---------------- */
+
+#detailCategory{margin-top:.2rem}
+#detailDescription{margin:.6rem 0}
+.detail-options{display:flex;flex-wrap:wrap;gap:1.2rem;margin:.9rem 0}
+.opt-block{display:flex;flex-direction:column;gap:.5rem;min-width:0}
+.opt-label{font-weight:700;font-size:.85rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:.5rem}
+.chip{
+  display:flex;flex-direction:column;align-items:flex-start;gap:.1rem;
+  padding:.55rem .9rem;border-radius:14px;cursor:pointer;
+  border:2px solid var(--border);background:var(--surface);color:var(--text);
+  font:inherit;font-weight:700;transition:transform .15s,border-color .2s,box-shadow .2s;
+}
+.chip:hover{transform:translateY(-2px);border-color:var(--secondary)}
+.chip-price{font-size:.78rem;font-weight:600;color:var(--muted)}
+.chip.active{
+  border-color:transparent;color:#fff;background:var(--gradient);
+  box-shadow:0 8px 22px var(--glow);
+}
+.chip.active .chip-price{color:rgba(255,255,255,.9)}
+
+.stepper{display:flex;align-items:center;gap:.4rem;background:var(--surface);border:2px solid var(--border);border-radius:14px;padding:.25rem}
+.stepper button{
+  width:36px;height:36px;border-radius:10px;border:0;cursor:pointer;
+  background:var(--primary);color:#fff;font-size:1.2rem;font-weight:900;line-height:1;
+}
+.stepper button:hover{background:var(--secondary)}
+.stepper input{
+  width:64px;text-align:center;border:0;background:transparent;color:var(--text);
+  font-weight:800;font-size:1rem;padding:.3rem 0;
+}
+.stepper input:focus{outline:none;box-shadow:none}
+.stepper input::-webkit-outer-spin-button,
+.stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.stepper input[type=number]{-moz-appearance:textfield;appearance:textfield}
+
+.price{color:var(--secondary);font-weight:900}
+.price-detail{font-size:1.5rem;margin:.6rem 0 1rem}
+.price-detail small{font-weight:600;font-size:.85rem}
+
+/* ---------------- Adaptations mobiles ---------------- */
+
+@media (max-width:760px){
+  .hero{grid-template-columns:1fr;padding-top:3rem;text-align:center}
+  .hero-logo{
+    max-width:200px;
+    width:100%;
+    margin:0 auto;
+    justify-self:center;
+    grid-row:1;
+  }
+  .topbar nav{display:none}
+  .cart-btn{margin-left:auto}
+  .vp-volume{display:none}
+}
+
+@media (max-width:600px){
+  .contact-grid{grid-template-columns:1fr}
+  .product-dialog{padding:1rem;width:96vw}
+  .product .thumb{height:auto}
+  .carousel{height:clamp(200px,60vw,320px)}
+  .carousel.is-portrait{height:clamp(260px,74vw,400px)}
+  .vp-controls{gap:.25rem;padding:.45rem}
+}
+
+@media (max-width:480px){
+  .line{grid-template-columns:minmax(0,1fr) auto}
+  .line-total{grid-column:1/-1;text-align:right}
+  .detail-options{gap:.9rem}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation:none !important;transition:none !important}
+}
+
+/* FICHE PRODUIT CORNER69 — PLEIN ÉCRAN */
+
+.product-dialog{
+  width:min(680px,96vw);
+  max-height:92vh;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  scrollbar-width:thin;
+}
+
+.product-dialog .drawer-head{
+  margin-bottom:1rem;
+}
+
+@media(max-width:600px){
+
+  .product-dialog{
+    position:fixed;
+    inset:0;
+    margin:0;
+    width:100%;
+    max-width:none;
+    height:100vh;
+    height:100dvh;
+    max-height:100dvh;
+    border-radius:0;
+    padding:12px 14px calc(105px + env(safe-area-inset-bottom));
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    border-top:4px solid var(--primary);
+  }
+
+  .product-dialog .drawer-head{
+    position:sticky;
+    top:-12px;
+    z-index:10;
+    background:var(--surface);
+    padding:10px 0;
+    margin:0 0 8px;
+  }
+
+  .product-dialog .carousel{
+    height:30dvh;
+    min-height:170px;
+    max-height:280px;
+  }
+
+  .product-dialog .carousel.is-portrait{
+    height:32dvh;
+    min-height:190px;
+    max-height:300px;
+  }
+
+  .product-dialog #detailAdd{
+    position:fixed;
+    left:14px;
+    right:14px;
+    bottom:calc(12px + env(safe-area-inset-bottom));
+    width:calc(100% - 28px);
+    z-index:50;
+    margin:0;
+    box-shadow:0 0 25px var(--glow);
+  }
+}
+
+/* =========================================================
+   NAVIGATION PAR PAGES — CORNER69
+   Couleurs héritées automatiquement de theme.js
+   ========================================================= */
+
+.page-view[hidden] {
+  display: none !important;
+}
+
+.page-view {
+  min-height: 65vh;
+  animation: pageAppear .22s ease;
+}
+
+@keyframes pageAppear {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+main {
+  padding-bottom: 105px;
+}
+
+.bottom-dock {
+  position: fixed;
+  z-index: 100;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 3px;
+
+  padding: 9px 8px calc(9px + env(safe-area-inset-bottom));
+
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  border-top: 1px solid var(--border);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.dock-link {
+  min-width: 0;
+  min-height: 54px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+
+  border: 1px solid transparent;
+  border-radius: 13px;
+  background: transparent;
+  color: var(--muted);
+
+  font: inherit;
+  font-size: .68rem;
+  font-weight: 700;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dock-icon {
+  font-size: 1.25rem;
+  line-height: 1.25;
+}
+
+.dock-link.active {
+  color: var(--text);
+  background: color-mix(in srgb, var(--primary) 18%, var(--surface));
+  border-color: var(--border);
+}
+
+.dock-link.active .dock-icon {
+  color: var(--accent);
+}
+
+.dock-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.about-section {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.about-card {
+  margin-bottom: 1rem;
+}
+
+.about-card h3 {
+  margin: .8rem 0;
+  color: var(--text);
+}
+
+.about-card p {
+  margin-top: .7rem;
+}
+
+@media (min-width: 761px) {
+  .bottom-dock {
+    left: 50%;
+    right: auto;
+    width: min(620px, 90vw);
+    transform: translateX(-50%);
+    bottom: 14px;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 8px;
+    box-shadow: 0 8px 35px var(--glow);
+  }
+
+  main {
+    padding-bottom: 120px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-view {
+    animation: none;
+  }
+}
+/* Panier adapté aux téléphones */
+@media (max-width: 600px) {
+  .drawer {
+    top: 0;
+    right: 0;
+    bottom: 0;
+
+    width: 100%;
+    max-width: none;
+
+    height: 100vh;
+    height: 100dvh;
+
+    padding:
+      calc(16px + env(safe-area-inset-top))
+      16px
+      calc(100px + env(safe-area-inset-bottom));
+
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+
+    border-left: 0;
+    border-top: 4px solid var(--primary);
+  }
+
+  .drawer .drawer-head {
+    position: sticky;
+    top: calc(-16px - env(safe-area-inset-top));
+    z-index: 5;
+
+    padding:
+      calc(16px + env(safe-area-inset-top))
+      0
+      12px;
+
+    background: var(--surface);
+  }
+
+  #cartItems {
+    flex: 1 0 auto;
+    min-height: 0;
+  }
+
+  #toOrder {
+    position: sticky;
+    bottom: 0;
+    z-index: 6;
+
+    width: 100%;
+    min-height: 52px;
+    margin-top: 4px;
+
+    box-shadow:
+      0 -15px 25px var(--surface),
+      0 0 24px var(--glow);
+  }
+
+}
+
+.player{display:grid;place-items:stretch}
+.player video,.player iframe,.player > div > video,.player > div > iframe{
+  width:100%;height:100%;object-fit:contain;object-position:center;display:block;
+}
