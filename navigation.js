@@ -46,21 +46,21 @@
       <h2>À propos de CORNER69</h2>
 
       <article class="card about-card">
-        <p class="badge">BIENVENUE DANS LE CORNER</p>
-        <h3>CORNER 69 🥇 — LA RÉF DU MOMENT</h3>
+        <p class="badge">👋 BIENVENUE CHEZ WINTERFELL38</p>
+        <h3>WNTFELL 38 🥇 — LA RÉF DU MOMENT</h3>
         <p class="muted">
-          La famille, bienvenue dans le corner. 🤝
+          La famille, bienvenue dans la planque. 🤝🏴‍☠️
         </p>
         <p class="muted">
           📲 <strong>Menu actualisé quotidiennement</strong> — retrouvez chaque
           jour les dernières nouveautés directement dans le menu.
         </p>
         <p class="muted">
-          🚘 <strong>Livraison sur Lyon et alentours</strong> — un service
+          🚘 <strong>Livraison sur L'isle d'Abeau,Bourgoin-Jallieux, Villefontaine et alentours</strong> — un service
           rapide et discret, selon disponibilité.
         </p>
         <p class="muted">
-          🕛 <strong>Ouvert de 12h à 00h</strong> — sept jours sur sept.
+          🕛 <strong>Ouvert de 12h à 01h</strong> — sept jours sur sept.
         </p>
         <p class="muted">
           🔔 Restez connecté pour ne rien manquer.
@@ -70,7 +70,7 @@
       <article class="card about-card">
         <h3>🚚 Livraison</h3>
         <p class="muted">
-          Nous livrons sur Lyon et ses alentours, de 12h à 00h. Les frais
+          Nous livrons sur L'isle d'Abeau,Bourgoin-Jallieux, Villefontaine et alentours, de 12h à 01h. Les frais
           éventuels dépendent de votre zone : ils vous sont indiqués avant la
           validation de la commande, jamais après.
         </p>
