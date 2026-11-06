@@ -43,7 +43,7 @@
   /* Nouvelle rubrique À propos */
   aboutPage.innerHTML = `
     <section class="section about-section">
-      <h2>À propos de CORNER69</h2>
+      <h2>À propos de WINTERFELL38 ❄️</h2>
 
       <article class="card about-card">
         <p class="badge">👇 A PROPOS DE NOUS</p>
