@@ -60,7 +60,7 @@
           rapide et discret, selon disponibilité.
         </p>
         <p class="muted">
-          🕛 <strong>Ouvert de 12h à 01h</strong> — sept jours sur sept.
+          🕛 <strong>Ouvert de 12h à 01h</strong> — 7/7.
         </p>
         <p class="muted">
           🔔 Restez connecté pour ne rien manquer.
