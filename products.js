@@ -170,7 +170,7 @@ const SAMPLE_REVIEWS = [
   },
 
   {
-    name: "juju693",
+    name: "juju383",
     rating: 5,
     text: "Contact et livreur au top bravo 👏",
     sample: true
