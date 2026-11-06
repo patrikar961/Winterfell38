@@ -781,6 +781,11 @@ main {
       0 -15px 25px var(--surface),
       0 0 24px var(--glow);
   }
+
 }
 
+.player{display:grid;place-items:stretch}
+.player video,.player iframe,.player > div > video,.player > div > iframe{
+  width:100%;height:100%;object-fit:contain;object-position:center;display:block;
+}
 
