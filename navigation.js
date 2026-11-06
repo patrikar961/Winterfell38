@@ -46,7 +46,7 @@
       <h2>À propos de CORNER69</h2>
 
       <article class="card about-card">
-        <p class="badge">👋 A PROPOS DE NOUS</p>
+        <p class="badge">👇 A PROPOS DE NOUS</p>
         <h3>WNTFELL 38 🥇 — LA RÉF DU MOMENT</h3>
         <p class="muted">
           La famille, bienvenue dans la planque. 🤝🏴‍☠️
@@ -82,7 +82,7 @@
 
       <article class="card about-card">
         <p class="badge">COMMENT COMMANDER ? </p>
-        <h3>💬 Commander en quelques minutes</h3>
+        <h3>💬 Commander en quelques clics</h3>
 
         <ol class="about-steps">
           <li>Parcourez le menu et ouvrez la fiche du produit qui vous intéresse.</li>
