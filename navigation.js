@@ -46,7 +46,7 @@
       <h2>À propos de CORNER69</h2>
 
       <article class="card about-card">
-        <p class="badge">👋 BIENVENUE CHEZ WINTERFELL38</p>
+        <p class="badge">👋 A PROPOS DE NOUS</p>
         <h3>WNTFELL 38 🥇 — LA RÉF DU MOMENT</h3>
         <p class="muted">
           La famille, bienvenue dans la planque. 🤝🏴‍☠️
