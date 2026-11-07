@@ -1,260 +1,108 @@
 /* =========================================================
-   MUSIC.JS — Fond sonore WINTERFELL38
-   Lecteur caché : liste des sons dans assets/music/playlist.txt
-   Pour ajouter un son : dépose le fichier dans assets/music/
-   puis ajoute son nom sur une ligne dans playlist.txt.
+   MUSIC.CSS — Lecteur de fond sonore (WINTERFELL38)
+   Panneau discret, en bas à droite, sans gêner la navigation.
    ========================================================= */
 
-(() => {
-  "use strict";
+.music-panel{
+  position:fixed;
+  z-index:120;
+  left:50%;
+  bottom:calc(108px + env(safe-area-inset-bottom));
+  transform:translate(-50%,14px);
+  width:min(340px,92vw);
+  display:flex;
+  flex-direction:column;
+  gap:.6rem;
+  padding:.85rem .9rem;
+  border-radius:18px;
+  border:1px solid var(--border);
+  background:color-mix(in srgb,var(--surface) 96%,transparent);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  box-shadow:0 14px 40px var(--glow);
+  opacity:0;
+  transition:opacity .22s ease,transform .22s ease;
+}
 
-  const PLAYLIST_URL = "assets/music/playlist.txt";
-  const STORE_KEY = "winterfell38_music";
+.music-panel.show{opacity:1;transform:translate(-50%,0)}
 
-  /* Combinaison d'ouverture du lecteur : un appui long (1,2 s)
-     sur le logo de la boutique. Aucun bouton visible pour les visiteurs. */
-  const HOLD_MS = 1200;
+.music-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:.8rem;
+}
 
-  let audio = null;
-  let panel = null;
-  let picker = null;
-  let playBtn = null;
-  let muteBtn = null;
-  let volume = null;
-  let tracks = [];
-  let current = 0;
+.music-title{
+  font-size:.78rem;
+  font-weight:800;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
 
-  let saved = { volume: 0.35, track: 0, muted: false, playing: false };
+.music-close{
+  border:0;background:none;color:var(--muted);
+  font-size:1rem;line-height:1;cursor:pointer;padding:.2rem .35rem;
+}
+.music-close:hover{color:var(--primary)}
 
-  try {
-    saved = Object.assign(saved, JSON.parse(localStorage.getItem(STORE_KEY) || "{}"));
-  } catch {
-    /* préférences illisibles : on repart des valeurs par défaut */
-  }
+.music-row{display:flex;align-items:center;gap:.55rem;min-width:0}
 
-  const persist = () => {
-    try {
-      localStorage.setItem(STORE_KEY, JSON.stringify(saved));
-    } catch {
-      /* mode privé : les réglages restent valables pour la session */
-    }
-  };
+.music-play,.music-mute{
+  flex:0 0 auto;
+  width:38px;height:38px;
+  border-radius:12px;border:0;cursor:pointer;
+  background:var(--primary);color:#fff;
+  font-size:.95rem;font-weight:900;line-height:1;
+  display:grid;place-items:center;
+}
+.music-play:hover,.music-mute:hover{background:var(--secondary)}
+.music-mute{background:color-mix(in srgb,var(--primary) 22%,var(--surface));color:var(--text)}
 
-  const clean = line =>
-    line.trim().replace(/^[-*\u2022]\s*/, "").replace(/^["']|["']$/g, "").trim();
+.music-pick{
+  flex:1 1 auto;
+  min-width:0;
+  font:inherit;
+  font-size:.86rem;
+  padding:.5rem .7rem;
+  border-radius:11px;
+  border:2px solid var(--border);
+  background:var(--surface);
+  color:var(--text);
+}
+.music-pick:focus{outline:none;border-color:var(--accent);box-shadow:var(--ring)}
 
-  const isAudio = name => /\.(mp3|m4a|aac|ogg|oga|opus|wav|webm)$/i.test(name);
+.music-vol{
+  flex:1 1 auto;
+  min-width:0;
+  height:26px;
+  accent-color:var(--primary);
+  cursor:pointer;
+  padding:0;border:0;background:none;
+}
 
-  const labelOf = name =>
-    name
-      .replace(/^.*\//, "")
-      .replace(/\.[a-z0-9]+$/i, "")
-      .replace(/[_]+/g, " ")
-      .trim();
+.music-val{
+  flex:0 0 auto;
+  min-width:42px;
+  text-align:right;
+  font-size:.78rem;
+  font-weight:700;
+  color:var(--muted);
+  font-variant-numeric:tabular-nums;
+}
 
-  const srcOf = name =>
-    /^https?:\/\//i.test(name) ? name : "assets/music/" + name.replace(/^assets\/music\//i, "");
+.music-note{
+  font-size:.76rem;
+  color:var(--muted);
+  min-height:.9rem;
+  overflow-wrap:anywhere;
+}
 
-  /* ---------------- Interface ---------------- */
+@media (max-width:600px){
+  .music-panel{bottom:calc(96px + env(safe-area-inset-bottom));padding:.75rem .8rem}
+}
 
-  function buildUI() {
-    panel = document.createElement("div");
-    panel.className = "music-panel";
-    panel.hidden = true;
-    panel.setAttribute("role", "group");
-    panel.setAttribute("aria-label", "Fond sonore");
-
-    panel.innerHTML = `
-      <div class="music-head">
-        <span class="music-title">Fond sonore</span>
-        <button type="button" class="music-close" data-music-close aria-label="Fermer le lecteur">✕</button>
-      </div>
-      <div class="music-row">
-        <button type="button" class="music-play" data-music-play aria-label="Lecture ou pause">▶</button>
-        <select class="music-pick" data-music-pick aria-label="Choisir un son"></select>
-      </div>
-      <div class="music-row">
-        <button type="button" class="music-mute" data-music-mute aria-label="Couper le son">🔊</button>
-        <input class="music-vol" type="range" min="0" max="1" step="0.01" data-music-vol aria-label="Volume" />
-        <span class="music-val" data-music-val>35%</span>
-      </div>
-      <p class="music-note" data-music-note></p>
-    `;
-
-    document.body.appendChild(panel);
-
-    playBtn = panel.querySelector("[data-music-play]");
-    picker = panel.querySelector("[data-music-pick]");
-    muteBtn = panel.querySelector("[data-music-mute]");
-    volume = panel.querySelector("[data-music-vol]");
-
-    audio = new Audio();
-    audio.preload = "none";
-    audio.loop = false;
-    audio.volume = saved.volume;
-
-    volume.value = String(saved.volume);
-    panel.querySelector("[data-music-val]").textContent = Math.round(saved.volume * 100) + "%";
-
-    playBtn.addEventListener("click", togglePlay);
-    muteBtn.addEventListener("click", toggleMute);
-    picker.addEventListener("change", () => select(Number(picker.value), true));
-
-    volume.addEventListener("input", () => {
-      saved.volume = Number(volume.value);
-      saved.muted = false;
-      audio.volume = saved.volume;
-      audio.muted = false;
-      panel.querySelector("[data-music-val]").textContent = Math.round(saved.volume * 100) + "%";
-      muteBtn.textContent = saved.volume === 0 ? "🔇" : "🔊";
-      persist();
-    });
-
-    panel.addEventListener("click", e => {
-      if (e.target.closest("[data-music-close]")) hide();
-    });
-
-    audio.addEventListener("ended", () => {
-      if (!tracks.length) return;
-      select((current + 1) % tracks.length, saved.playing);
-    });
-
-    audio.addEventListener("error", () => {
-      note("Ce son est introuvable. Vérifie le nom dans assets/music/playlist.txt.");
-      setPlaying(false);
-    });
-  }
-
-  const note = msg => {
-    const box = panel && panel.querySelector("[data-music-note]");
-    if (box) box.textContent = msg || "";
-  };
-
-  function setPlaying(on) {
-    saved.playing = !!on;
-    if (playBtn) playBtn.textContent = on ? "❙❙" : "▶";
-    persist();
-  }
-
-  function togglePlay() {
-    if (!tracks.length) return;
-
-    if (audio.paused) {
-      if (!audio.src) select(current, false);
-      audio.muted = false;
-      const p = audio.play();
-
-      if (p && typeof p.catch === "function") {
-        p.then(() => setPlaying(true)).catch(() => {
-          setPlaying(false);
-          note("Appuie d'abord quelque part sur la page, puis relance la lecture.");
-        });
-      } else {
-        setPlaying(true);
-      }
-    } else {
-      audio.pause();
-      setPlaying(false);
-    }
-  }
-
-  /* Coupe immédiate : le son s'arrête et le bouton revient sur lecture,
-     mais la position est conservée : on reprend où on s'était arrêté. */
-  function toggleMute() {
-    saved.muted = !saved.muted;
-    audio.muted = saved.muted;
-    muteBtn.textContent = saved.muted ? "🔇" : "🔊";
-    persist();
-  }
-
-  function select(index, autoplay) {
-    if (!tracks.length) return;
-
-    current = Math.max(0, Math.min(tracks.length - 1, index));
-    saved.track = current;
-
-    audio.src = tracks[current].src;
-    if (picker) picker.value = String(current);
-
-    note(tracks[current].label);
-
-    if (autoplay) {
-      audio.play().then(() => setPlaying(true)).catch(() => {
-        setPlaying(false);
-        note("Appuie d'abord quelque part sur la page, puis relance la lecture.");
-      });
-    }
-  }
-
-  const show = () => { if (panel) { panel.hidden = false; panel.classList.add("show"); } };
-  const hide = () => { if (panel) { panel.hidden = true; panel.classList.remove("show"); } };
-
-  /* ---------------- Chargement de la liste ---------------- */
-
-  async function loadTracks() {
-    let text = "";
-
-    try {
-      const res = await fetch(PLAYLIST_URL, { cache: "no-store" });
-      if (res.ok) text = await res.text();
-    } catch {
-      /* hors ligne : la liste restera vide */
-    }
-
-    tracks = text
-      .split(/\r?\n/)
-      .map(clean)
-      .filter(line => line && !line.startsWith("#") && isAudio(line))
-      .map(name => ({ src: srcOf(name), label: labelOf(name) }));
-
-    if (!picker) return;
-
-    picker.innerHTML = tracks.length
-      ? tracks.map((t, i) => `<option value="${i}">${t.label.replace(/[<>&]/g, "")}</option>`).join("")
-      : '<option value="0">Aucun son — ajoute un nom dans assets/music/playlist.txt</option>';
-
-    if (tracks.length) select(Math.min(saved.track, tracks.length - 1), false);
-  }
-
-  /* ---------------- Bouton caché ---------------- */
-
-  function bindSecretTrigger() {
-    const brand = document.querySelector(".topbar .brand");
-    if (!brand) return;
-
-    let timer = null;
-
-    const start = () => {
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        timer = null;
-        if (panel && panel.hidden) show();
-        else hide();
-      }, HOLD_MS);
-    };
-
-    const stop = () => {
-      if (timer) {
-        clearTimeout(timer);
-        timer = null;
-      }
-    };
-
-    brand.addEventListener("pointerdown", start);
-    brand.addEventListener("pointerup", stop);
-    brand.addEventListener("pointercancel", stop);
-    brand.addEventListener("pointerleave", stop);
-  }
-
-  function init() {
-    buildUI();
-    bindSecretTrigger();
-    loadTracks();
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
-  } else {
-    init();
-  }
-})();
+@media (prefers-reduced-motion:reduce){
+  .music-panel{transition:none}
+}
