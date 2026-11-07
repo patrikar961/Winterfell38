@@ -1,0 +1,17 @@
+# =========================================================
+# PLAYLIST DU FOND SONORE — WINTERFELL38
+# =========================================================
+#
+# Une ligne = un son. Rien d'autre à écrire.
+#
+# POUR AJOUTER UN SON :
+#   1. dépose le fichier dans ce dossier (assets/music/)
+#   2. écris ici son nom EXACT, avec l'extension
+#
+# Exemple :
+#   ambiance-nuit.mp3
+#
+# POUR LE RETIRER : efface sa ligne (le fichier peut rester).
+#
+# Les lignes vides et celles qui commencent par # sont ignorées.
+# =========================================================
