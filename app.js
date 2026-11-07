@@ -591,23 +591,14 @@
     const url = String(SHOP.makeWebhook || "").trim();
     if (!url) return;
 
-    const body = JSON.stringify(payload);
-
     try {
-      if (navigator.sendBeacon) {
-        const sent = navigator.sendBeacon(url, new Blob([body], { type: "application/json" }));
-        if (sent) return;
-      }
-    } catch {
-      /* sendBeacon indisponible : on passe par fetch */
-    }
-
-    try {
+      /* Envoi en arriere-plan : la requete part, mais on n'attend pas la
+         reponse avant d'ouvrir WhatsApp. Le client n'est jamais ralenti,
+         et un echec de Make ne lui est jamais montre. */
       fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body,
-        keepalive: true,
+        body: JSON.stringify(payload),
         mode: "cors"
       }).catch(() => {
         /* webhook injoignable : WhatsApp reste la garantie */
