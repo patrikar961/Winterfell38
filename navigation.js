@@ -115,24 +115,46 @@
       </article>
 
       <article class="card about-card">
-        <h3>🔐 VERIFICATION NOUVEAU CLIENT</h3>
-        <p class="muted">
-           WINTERFELL38 ❄️ — VÉRIFICATION CLIENT ✅
-👋 La famille, on sécurise nos livreurs !
-Pour renforcer la sécurité de nos clients et de nos livreurs, une vérification d’identité est prévue avant toute première commande.
-🪪 ÉTAPE 1 : Présentation du recto d’une pièce d’identité.
-🤳 ÉTAPE 2 : Un selfie permettant de vérifier l’identité.
-✅ Une fois la vérification effectuée, votre demande pourra être examinée.
-⚠️ IMPORTANT : ne publiez jamais vos documents personnels dans le canal ou dans un groupe public. Toute collecte doit passer par notre 📲 contact , pour cela cliquez sur le lien contact ci-dessous.
-La suppression de vos données est immédiate après vérification.
-🤝 Merci pour votre compréhension et votre confiance.
- WINTERFELL38 ❄️ — DU RESPECT, DE LA CONFIANCE, DU SÉRIEUX. 🤝
+        <h3>🔐 Vérification nouveau client</h3>
+
+        <p class="about-line">👋 La famille, on sécurise nos livreurs.</p>
+
+        <p class="about-line">
+          Pour renforcer la sécurité de nos clients et de nos livreurs, une
+          vérification d'identité est prévue avant toute première commande.
         </p>
-        <p class="muted">
-          Ne publiez jamais de pièce d'identité, de selfie ou de document
-          personnel dans un canal ou un groupe public.
+
+        <p class="about-step">
+          <span class="about-step-tag">🪪 Étape 1</span>
+          <span>Présentation du recto d'une pièce d'identité.</span>
         </p>
-        <p class="muted">
+
+        <p class="about-step">
+          <span class="about-step-tag">🤳 Étape 2</span>
+          <span>Un selfie permettant de vérifier l'identité.</span>
+        </p>
+
+        <p class="about-line">
+          ✅ Une fois la vérification effectuée, votre demande pourra être
+          examinée.
+        </p>
+
+        <p class="about-warning">
+          ⚠️ <strong>Important</strong> — ne publiez jamais vos documents
+          personnels dans le canal ou dans un groupe public. Toute collecte
+          doit passer par notre contact.
+        </p>
+
+        <p class="about-line">
+          🔒 La suppression de vos données est immédiate après vérification.
+        </p>
+
+        <p class="about-line about-sign">
+          🤝 Merci pour votre compréhension et votre confiance.
+        </p>
+
+        <p class="about-motto">
+          WINTERFELL38 ❄️ — du respect, de la confiance, du sérieux.
         </p>
       </article>
     </section>
