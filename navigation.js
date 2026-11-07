@@ -114,8 +114,26 @@
         </a>
       </article>
 
+      <article class="card about-card">
+        <h3>🔐 VERIFICATION NOUVEAU CLIENT</h3>
+        <p class="muted">
+          Si une vérification est nécessaire, ses modalités doivent vous
+          être communiquées individuellement par un canal privé adapté.
+        </p>
+        <p class="muted">
+          Ne publiez jamais de pièce d'identité, de selfie ou de document
+          personnel dans un canal ou un groupe public.
+        </p>
+        <p class="muted">
+          Avant toute transmission de données personnelles, demandez
+          quelles informations sont nécessaires, comment elles sont
+          protégées et combien de temps elles sont conservées.
+        </p>
+      </article>
     </section>
   `;
+
+  
 
   /* Installation des pages dans le main */
   main.replaceChildren(homePage, avisPage, aboutPage, contactPage);
