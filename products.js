@@ -60,7 +60,7 @@ const PRODUCTS = [
       {
         type: "video",
         src: "assets/video/ecaillev.mp4",
-        poster: "assets/img/ec.webp",
+        poster: "assets/img/ecaill.JPEG",
         alt: "Vidéo du produit"
       }
     ],
@@ -87,7 +87,7 @@ const PRODUCTS = [
       {
         type: "video",
         src: "assets/video/olivecv.mp4",
-        poster: "assets/img/occ.webp",
+        poster: "assets/img/olive.PNG",
         alt: "Vidéo du produit"
       }
     ],
@@ -113,7 +113,7 @@ const PRODUCTS = [
       {
         type: "video",
         src: "assets/video/tazv.mp4",
-        poster: "assets/img/tc.webp",
+        poster: "assets/img/taz.JPEG",
         alt: "Vidéo du produit"
       }
     ],
@@ -139,7 +139,7 @@ const PRODUCTS = [
       {
         type: "video",
         src: "assets/video/kv.mp4",
-        poster: "assets/img/kc.webp",
+        poster: "assets/img/ke.JPEG",
         alt: "Vidéo du produit"
       }
     ],
