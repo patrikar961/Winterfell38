@@ -1,6 +1,6 @@
 /* =========================================================
    MUSIC.JS — Fond sonore WINTERFELL38
-   Lecteur caché : listes des sons dans assets/music/playlist.txt
+   Lecteur caché : liste des sons dans assets/music/playlist.txt
    Pour ajouter un son : dépose le fichier dans assets/music/
    puis ajoute son nom sur une ligne dans playlist.txt.
    ========================================================= */
@@ -14,6 +14,10 @@
   /* Combinaison d'ouverture du lecteur : un appui long (1,2 s)
      sur le logo de la boutique. Aucun bouton visible pour les visiteurs. */
   const HOLD_MS = 1200;
+
+  /* Le volume est piloté par une courbe de puissance : les petits
+     réglages s'entendent vraiment, au lieu d'être tassés près du maximum. */
+  const CURVE = 2.2;
 
   let audio = null;
   let panel = null;
@@ -55,6 +59,22 @@
   const srcOf = name =>
     /^https?:\/\//i.test(name) ? name : "assets/music/" + name.replace(/^assets\/music\//i, "");
 
+  const clamp01 = n => Math.max(0, Math.min(1, Number(n) || 0));
+
+  /* position du curseur (0 → 1) transformée en volume réel */
+  const toLevel = v => Math.pow(clamp01(v), CURVE);
+
+  /* Suit la page : la musique continue quand tu passes d'une rubrique
+     à l'autre. */
+  const updatePos = () => {
+    if (!panel || panel.hidden) return;
+
+    const dock = document.querySelector(".bottom-dock");
+    const offset = dock ? Math.max(86, window.innerHeight - dock.getBoundingClientRect().top + 10) : 24;
+
+    panel.style.bottom = offset + "px";
+  };
+
   /* ---------------- Interface ---------------- */
 
   function buildUI() {
@@ -75,7 +95,7 @@
       </div>
       <div class="music-row">
         <button type="button" class="music-mute" data-music-mute aria-label="Couper le son">🔊</button>
-        <input class="music-vol" type="range" min="0" max="1" step="0.01" data-music-vol aria-label="Volume" />
+        <input class="music-vol" type="range" min="0" max="100" step="1" data-music-vol aria-label="Volume" />
         <span class="music-val" data-music-val>35%</span>
       </div>
       <p class="music-note" data-music-note></p>
@@ -91,22 +111,24 @@
     audio = new Audio();
     audio.preload = "none";
     audio.loop = false;
-    audio.volume = saved.volume;
 
-    volume.value = String(saved.volume);
-    panel.querySelector("[data-music-val]").textContent = Math.round(saved.volume * 100) + "%";
+    applyVolume(false);
+    volume.value = String(Math.round(saved.volume * 100));
 
     playBtn.addEventListener("click", togglePlay);
     muteBtn.addEventListener("click", toggleMute);
     picker.addEventListener("change", () => select(Number(picker.value), true));
 
     volume.addEventListener("input", () => {
-      saved.volume = Number(volume.value);
-      saved.muted = false;
-      audio.volume = saved.volume;
-      audio.muted = false;
-      panel.querySelector("[data-music-val]").textContent = Math.round(saved.volume * 100) + "%";
-      muteBtn.textContent = saved.volume === 0 ? "🔇" : "🔊";
+      saved.volume = clamp01(Number(volume.value) / 100);
+
+      /* bouger le curseur rétablit le son : plus besoin de chercher le bouton */
+      if (saved.volume > 0) {
+        saved.muted = false;
+        audio.muted = false;
+      }
+
+      applyVolume(true);
       persist();
     });
 
@@ -123,6 +145,32 @@
       note("Ce son est introuvable. Vérifie le nom dans assets/music/playlist.txt.");
       setPlaying(false);
     });
+
+    updatePos();
+    window.addEventListener("resize", updatePos);
+    window.addEventListener("orientationchange", updatePos);
+  }
+
+  /* Applique le volume réel + met à jour le pourcentage et l'icône.
+     Le volume du téléphone multiplie le nôtre : on le rappelle quand il
+     est très bas, plutôt que de laisser croire que le curseur ne fait rien. */
+  function applyVolume(announce) {
+    const level = toLevel(saved.volume);
+
+    audio.volume = level;
+    audio.muted = saved.muted;
+
+    volume.value = String(Math.round(saved.volume * 100));
+    panel.querySelector("[data-music-val]").textContent = Math.round(saved.volume * 100) + "%";
+    muteBtn.textContent = saved.muted || saved.volume === 0 ? "🔇" : "🔊";
+
+    if (!announce) return;
+
+    if (saved.volume === 0) {
+      note("Son coupé par le volume.");
+    } else {
+      note(tracks[current] ? tracks[current].label : "");
+    }
   }
 
   const note = msg => {
@@ -136,12 +184,35 @@
     persist();
   }
 
+  /* Le navigateur refuse la lecture automatique : on profite du premier
+     appui de la visite pour relancer la musique là où elle s'était
+     arrêtée, sans rien demander. */
+  function armResume() {
+    if (!saved.playing || !tracks.length) return;
+
+    const resume = () => {
+      document.removeEventListener("pointerdown", resume, true);
+
+      audio.muted = saved.muted;
+      audio.volume = toLevel(saved.volume);
+
+      const p = audio.play();
+      if (p && typeof p.catch === "function") {
+        p.then(() => setPlaying(true)).catch(() => setPlaying(false));
+      }
+    };
+
+    document.addEventListener("pointerdown", resume, true);
+  }
+
   function togglePlay() {
     if (!tracks.length) return;
 
     if (audio.paused) {
       if (!audio.src) select(current, false);
-      audio.muted = false;
+      audio.muted = saved.muted;
+      audio.volume = toLevel(saved.volume);
+
       const p = audio.play();
 
       if (p && typeof p.catch === "function") {
@@ -155,6 +226,7 @@
     } else {
       audio.pause();
       setPlaying(false);
+      updatePos();
     }
   }
 
@@ -164,6 +236,7 @@
     saved.muted = !saved.muted;
     audio.muted = saved.muted;
     muteBtn.textContent = saved.muted ? "🔇" : "🔊";
+    note(saved.muted ? "Son coupé — relance avec ✕ non, avec le curseur ou l'icône." : "Son rétabli.");
     persist();
   }
 
@@ -179,6 +252,8 @@
     note(tracks[current].label);
 
     if (autoplay) {
+      audio.muted = saved.muted;
+      audio.volume = toLevel(saved.volume);
       audio.play().then(() => setPlaying(true)).catch(() => {
         setPlaying(false);
         note("Appuie d'abord quelque part sur la page, puis relance la lecture.");
@@ -186,8 +261,18 @@
     }
   }
 
-  const show = () => { if (panel) { panel.hidden = false; panel.classList.add("show"); } };
-  const hide = () => { if (panel) { panel.hidden = true; panel.classList.remove("show"); } };
+  const show = () => {
+    if (!panel) return;
+    panel.hidden = false;
+    panel.classList.add("show");
+    updatePos();
+  };
+
+  const hide = () => {
+    if (!panel) return;
+    panel.hidden = true;
+    panel.classList.remove("show");
+  };
 
   /* ---------------- Chargement de la liste ---------------- */
 
@@ -213,7 +298,11 @@
       ? tracks.map((t, i) => `<option value="${i}">${t.label.replace(/[<>&]/g, "")}</option>`).join("")
       : '<option value="0">Aucun son — ajoute un nom dans assets/music/playlist.txt</option>';
 
+    picker.disabled = !tracks.length;
+
     if (tracks.length) select(Math.min(saved.track, tracks.length - 1), false);
+
+    armResume();
   }
 
   /* ---------------- Bouton caché ---------------- */
