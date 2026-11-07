@@ -9,12 +9,13 @@ const SHOP = {
   name: "WINTERFELL38 ❄️",
   telegram: "https://t.me/Winterfell388",
   whatsapp: "33773921125",
-  currency: "EUR"
+  currency: "EUR",
+
+  /* Webhook Make : la commande y est postée à chaque validation.
+     Laisser la chaîne vide pour désactiver l'envoi vers Make.
+     WhatsApp s'ouvre dans tous les cas, en doublon. */
+  makeWebhook: "https://hook.eu1.make.com/q5pfykzr33fdog8yk86tt7lla861ssbf"
 };
-
-/* WEBHOOK MAKE (facultatif : laissez vide pour désactiver l'envoi) */
-
-const MAKE_WEBHOOK_URL = "https://hook.eu1.make.com/q5pfykzr33fdog8yk86tt7lla861ssbf";
 
 /* VIDÉO PRINCIPALE DE LA BOUTIQUE
    IMPORTANT : le conteneur doit être du .mp4 (H.264 + AAC).
