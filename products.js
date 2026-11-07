@@ -7,7 +7,7 @@
 
 const SHOP = {
   name: "WINTERFELL38 ❄️",
-  telegram: "[t.me](https://t.me/Winterfell388)",
+  telegram: "https://t.me/Winterfell388",
   whatsapp: "33773921125",
   currency: "EUR"
 };
