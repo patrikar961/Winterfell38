@@ -732,17 +732,46 @@
     if (plus) changeLine(plus.dataset.linePlus, 1);
   });
 
-  /* Bouton « Ajouter au panier » de la fiche produit */
+  /* Boutons de la fiche produit */
 
   const detailAdd = $("#detailAdd");
+  const detailGoCart = $("#detailGoCart");
+
+  /* Quantité saisie dans la fiche, bornée entre 1 et 99 */
+  const detailQty = () => Math.max(1, Math.min(99, parseInt($("#detailQty").value, 10) || 1));
 
   if (detailAdd) {
     detailAdd.addEventListener("click", () => {
       if (!selectedProduct) return;
 
-      const qty = Math.max(1, Math.min(99, parseInt($("#detailQty").value, 10) || 1));
+      addToCart(selectedProduct.id, selectedVariant, detailQty());
+    });
+  }
+
+  /* « Voir mon panier » : le produit est ajouté, la fiche se referme et le
+     panier s'ouvre directement. Deux gestes au lieu de quatre : c'est ce
+     bouton qui sert le taux de conversion. */
+  if (detailGoCart) {
+    detailGoCart.addEventListener("click", () => {
+      if (!selectedProduct) return;
+
+      const qty = detailQty();
 
       addToCart(selectedProduct.id, selectedVariant, qty);
+
+      closeProduct();
+
+      setTimeout(() => {
+        openCart();
+
+        /* Le toast « Ajouté au panier » ferait doublon avec le panier ouvert */
+        const t = $("#toast");
+        if (t) {
+          clearTimeout(t._t);
+          t.classList.remove("show");
+          t._t = null;
+        }
+      }, 180);
     });
   }
 
