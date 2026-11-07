@@ -14,7 +14,7 @@ const SHOP = {
   /* Webhook Make : la commande y est postée à chaque validation.
      Laisser la chaîne vide pour désactiver l'envoi vers Make.
      WhatsApp s'ouvre dans tous les cas, en doublon. */
-  makeWebhook: "https://hook.eu1.make.com/q5pfykzr33fdog8yk86tt7lla861ssbf"
+  makeWebhook: "https://hook.eu1.make.com/kpqos0tguni2kdh8pk146fs9j2w0m24r"
 };
 
 /* VIDÉO PRINCIPALE DE LA BOUTIQUE
