@@ -441,6 +441,22 @@
       `${fmt(unit)} <small class="muted">l'unité · total ${fmt(unit * qty)}</small>`;
   }
 
+  /* Arrête toute vidéo du carrousel : sans ça, une vidéo de produit
+     continue de jouer derrière la page après la fermeture de la fiche. */
+  function pauseCarouselMedia() {
+    $$("video", track).forEach(v => {
+      try {
+        v.pause();
+      } catch {
+        /* média déjà arrêté : on ignore */
+      }
+    });
+  }
+
+  function closeProduct() {
+    if (productDialog && productDialog.open) productDialog.close();
+  }
+
   function openProduct(id) {
     const p = PRODUCTS.find(x => String(x.id) === String(id));
     if (!p) return;
@@ -481,10 +497,30 @@
       renderVariants();
       updateDetailPrice();
     }
+
+    const closeBtn = e.target.closest("#closeProduct");
+    if (closeBtn) {
+      closeProduct();
+      return;
+    }
+
+    /* Une vidéo du produit joue pendant la fermeture : on l'arrête,
+       pour qu'elle ne continue pas derrière la page. */
+    const addBtn = e.target.closest("#detailAdd");
+    if (addBtn) pauseCarouselMedia();
   });
 
-  $("#mediaPrev").addEventListener("click", () => goMedia(mediaIndex - 1));
-  $("#mediaNext").addEventListener("click", () => goMedia(mediaIndex + 1));
+  if (productDialog) {
+    productDialog.addEventListener("close", pauseCarouselMedia);
+
+    /* Clic à côté de la fiche : on la referme aussi. */
+    productDialog.addEventListener("click", e => {
+      if (e.target === productDialog) closeProduct();
+    });
+  }
+
+  $( "#mediaPrev" ).addEventListener("click", () => goMedia(mediaIndex - 1));
+  $( "#mediaNext" ).addEventListener("click", () => goMedia(mediaIndex + 1));
 
   document.addEventListener("keydown", e => {
     if (!productDialog.open) return;
@@ -793,10 +829,10 @@
         }
       }
 
-      const wa = String(SHOP.whatsapp || "").replace(/\D/g, "");
+      const wa2 = String(SHOP.whatsapp || "").replace(/\D/g, "");
 
-      const target = wa
-        ? `https://wa.me/${wa}?text=${encodeURIComponent(message)}`
+      const target = wa2
+        ? `https://wa.me/${wa2}?text=${encodeURIComponent(message)}`
         : (SHOP.telegram ? `${SHOP.telegram}` : "");
 
       if (target) {
