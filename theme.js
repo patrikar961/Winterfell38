@@ -39,6 +39,20 @@ const THEMES = {
   sunsetGold:   { bg:"#150b06", surface:"#2a160d", text:"#fff8ee", muted:"#dcc0a2", primary:"#ff9e00", secondary:"#ff6b35", accent:"#ffd60a", gradient:"linear-gradient(135deg,#ff6b35,#ff9e00 50%,#ffd60a)" },
   tropicalNeon: { bg:"#04201c", surface:"#0a3a33", text:"#f0fffc", muted:"#93dbcb", primary:"#00f5a0", secondary:"#ff4d9d", accent:"#ffe066", gradient:"linear-gradient(135deg,#00f5a0,#00d9f5 50%,#ff4d9d)" },
 
+  /* -------------------------------------------------------
+     PALETTES NÉON — série 2
+     ------------------------------------------------------- */
+  neonMagenta:  { bg:"#0d0316", surface:"#1c0730", text:"#ffeafc", muted:"#c98fd8", primary:"#ff00d4", secondary:"#8a2be2", accent:"#00ffc8", gradient:"linear-gradient(135deg,#ff00d4 0%,#8a2be2 50%,#00ffc8 100%)" },
+  acidLime:     { bg:"#061206", surface:"#0e2610", text:"#f2ffe8", muted:"#9fd68a", primary:"#c6ff00", secondary:"#00ff88", accent:"#ff2ec4", gradient:"linear-gradient(135deg,#c6ff00,#00ff88 55%,#ff2ec4)" },
+  ultraviolence:{ bg:"#07021a", surface:"#140a3a", text:"#efe8ff", muted:"#a48fe0", primary:"#b026ff", secondary:"#00e5ff", accent:"#ff007a", gradient:"linear-gradient(135deg,#b026ff,#ff007a 55%,#00e5ff)" },
+  synthwave:    { bg:"#0b0121", surface:"#1a0538", text:"#ffeaf1", muted:"#c48fd0", primary:"#ff2e97", secondary:"#00d9ff", accent:"#ffd400", gradient:"linear-gradient(135deg,#ff2e97,#7b2ff7 50%,#00d9ff)" },
+  vaporWave:    { bg:"#120b2e", surface:"#221347", text:"#fdf0ff", muted:"#b79ad8", primary:"#ff6ec7", secondary:"#00e0d0", accent:"#b06bff", gradient:"linear-gradient(135deg,#ff6ec7,#b06bff 50%,#00e0d0)" },
+  neonBlood:    { bg:"#14030a", surface:"#280616", text:"#fff0f4", muted:"#db93a8", primary:"#ff003c", secondary:"#ff5c00", accent:"#00e5ff", gradient:"linear-gradient(135deg,#ff003c,#ff5c00 55%,#ffd400)" },
+  electricBlue: { bg:"#03091c", surface:"#071638", text:"#eaf4ff", muted:"#8fb4e0", primary:"#0f7cff", secondary:"#00f0ff", accent:"#ff2ec4", gradient:"linear-gradient(135deg,#0f7cff,#00f0ff 50%,#ff2ec4)" },
+  neonMandarin: { bg:"#160800", surface:"#2b1103", text:"#fff5ea", muted:"#e0b597", primary:"#ff6a00", secondary:"#ffd000", accent:"#00f0ff", gradient:"linear-gradient(135deg,#ff6a00,#ffd000 55%,#00f0ff)" },
+  iceNeon:      { bg:"#04101a", surface:"#081f33", text:"#ecfaff", muted:"#93c4d8", primary:"#6ef0ff", secondary:"#a06bff", accent:"#ff5fd2", gradient:"linear-gradient(135deg,#6ef0ff,#a06bff 50%,#ff5fd2)" },
+  neonJungle:   { bg:"#04140c", surface:"#08281a", text:"#effff6", muted:"#8fd8b4", primary:"#00ff9d", secondary:"#c6ff00", accent:"#ff2e88", gradient:"linear-gradient(135deg,#00ff9d,#c6ff00 55%,#ff2e88)" },
+
   /* Votre propre palette : remplissez puis mettez ACTIVE_THEME = "custom" */
   custom:       { bg:"#101010", surface:"#1c1c1c", text:"#ffffff", muted:"#aaaaaa", primary:"#ff00aa", secondary:"#00ffaa", accent:"#ffaa00", gradient:"linear-gradient(135deg,#ff00aa,#00ffaa)" }
 };
