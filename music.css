@@ -1,6 +1,6 @@
 /* =========================================================
    MUSIC.CSS — Lecteur de fond sonore (WINTERFELL38)
-   Panneau discret, en bas à droite, sans gêner la navigation.
+   Panneau discret, au-dessus de la barre de navigation.
    ========================================================= */
 
 .music-panel{
@@ -76,7 +76,7 @@
 .music-vol{
   flex:1 1 auto;
   min-width:0;
-  height:26px;
+  height:28px;
   accent-color:var(--primary);
   cursor:pointer;
   padding:0;border:0;background:none;
@@ -98,6 +98,11 @@
   min-height:.9rem;
   overflow-wrap:anywhere;
 }
+
+/* Pied de page : c'est lui le bouton caché du fond sonore.
+   Rien ne le signale à l'œil, mais il répond au clic. */
+footer.music-trigger{cursor:pointer;-webkit-tap-highlight-color:transparent}
+footer.music-trigger:hover{color:var(--primary)}
 
 @media (max-width:600px){
   .music-panel{bottom:calc(96px + env(safe-area-inset-bottom));padding:.75rem .8rem}
