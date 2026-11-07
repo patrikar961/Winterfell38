@@ -6,7 +6,7 @@
 /* INFORMATIONS DE LA BOUTIQUE */
 
 const SHOP = {
-  name: "WINTERFELL38 🛍️",
+  name: "WINTERFELL38 ❄️",
   telegram: "[t.me](https://t.me/)",
   whatsapp: "33773921125",
   currency: "EUR"
