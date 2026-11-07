@@ -21,13 +21,25 @@
     }[c]));
 
   const toast = msg => {
-    const t = $("#toast");
-    if (!t) return;
-    t.textContent = msg;
-    t.classList.add("show");
-    clearTimeout(t._t);
-    t._t = setTimeout(() => t.classList.remove("show"), 3000);
-  };
+  const t = $("#toast");
+  if (!t) return;
+
+  clearTimeout(t._t);
+
+  t.textContent = msg;
+
+  t.classList.remove("show");
+
+  // Relance proprement l'animation
+  void t.offsetWidth;
+
+  t.classList.add("show");
+
+  // Disparition automatique après 2,5 secondes
+  t._t = setTimeout(() => {
+    t.classList.remove("show");
+  }, 2500);
+};
 
   const mediaList = p => (Array.isArray(p.media) ? p.media.filter(Boolean) : []);
 
