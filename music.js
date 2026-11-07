@@ -15,9 +15,28 @@
      (« © 2026 WINTERFELL38 »). Le logo, lui, ramène à l'accueil.
      Aucun bouton visible pour les visiteurs. */
 
-  /* Le volume est piloté par une courbe de puissance : les petits
-     réglages s'entendent vraiment, au lieu d'être tassés près du maximum. */
-  const CURVE = 2.2;
+  /* ---------------- Réglage du volume ----------------
+     Le curseur va de 0 à 100. Position = pourcentage affiché.
+     Position 50 = volume habituel (1.00). En dessous, on adoucit ;
+     au-dessus, on amplifie un peu. Chaque cran s'entend. */
+  const GAIN_AT_HALF = 1.0;
+  const BOOST_MAX = 2.5;
+
+  const clamp01 = n => Math.max(0, Math.min(1, Number(n) || 0));
+
+  /* position 0 → 1 transformée en volume réel */
+  const toLevel = v => {
+    const p = clamp01(v);
+
+    if (p <= 0) return 0;
+    if (p >= 1) return BOOST_MAX;
+
+    if (p <= 0.5) {
+      return Math.round(GAIN_AT_HALF * Math.pow(p / 0.5, 3) * 1000) / 1000;
+    }
+
+    return Math.round((GAIN_AT_HALF + (BOOST_MAX - GAIN_AT_HALF) * Math.pow((p - 0.5) / 0.5, 1.6)) * 1000) / 1000;
+  };
 
   let audio = null;
   let panel = null;
@@ -25,16 +44,24 @@
   let playBtn = null;
   let muteBtn = null;
   let volume = null;
+  let volumeLabel = null;
   let tracks = [];
   let current = 0;
+  let armed = false;
 
-  let saved = { volume: 0.35, track: 0, muted: false, playing: false };
+  let saved = { volume: 0.6, track: 0, muted: false, playing: false };
 
   try {
     saved = Object.assign(saved, JSON.parse(localStorage.getItem(STORE_KEY) || "{}"));
+
+    /* ancienne échelle 0 → 1 : on la ramène sur la nouvelle */
+    if (Number(saved.volume) <= 1) saved.volume = clamp01(Number(saved.volume) || 0.6);
+    else saved.volume = clamp01(Number(saved.volume) / 100);
   } catch {
     /* préférences illisibles : on repart des valeurs par défaut */
   }
+
+  if (!saved.volume) saved.volume = 0.6;
 
   const persist = () => {
     try {
@@ -59,10 +86,8 @@
   const srcOf = name =>
     /^https?:\/\//i.test(name) ? name : "assets/music/" + name.replace(/^assets\/music\//i, "");
 
-  const clamp01 = n => Math.max(0, Math.min(1, Number(n) || 0));
-
-  /* position du curseur (0 → 1) transformée en volume réel */
-  const toLevel = v => Math.pow(clamp01(v), CURVE);
+  /* Sous 3 % on considère le son coupé : c'est plus clair que « 2 % » */
+  const isSilent = () => saved.volume <= 0 || toLevel(saved.volume) < 0.03;
 
   /* Suit la page : le panneau se replace au-dessus de la barre de navigation. */
   const updatePos = () => {
@@ -92,10 +117,10 @@
         <button type="button" class="music-play" data-music-play aria-label="Lecture ou pause">▶</button>
         <select class="music-pick" data-music-pick aria-label="Choisir un son"></select>
       </div>
-      <div class="music-row">
+      <div class="music-row music-vol-row">
         <button type="button" class="music-mute" data-music-mute aria-label="Couper le son">🔊</button>
         <input class="music-vol" type="range" min="0" max="100" step="1" data-music-vol aria-label="Volume" />
-        <span class="music-val" data-music-val>35%</span>
+        <span class="music-val" data-music-val>60%</span>
       </div>
       <p class="music-note" data-music-note></p>
     `;
@@ -106,6 +131,7 @@
     picker = panel.querySelector("[data-music-pick]");
     muteBtn = panel.querySelector("[data-music-mute]");
     volume = panel.querySelector("[data-music-vol]");
+    volumeLabel = panel.querySelector("[data-music-val]");
 
     audio = new Audio();
     audio.preload = "none";
@@ -121,10 +147,7 @@
       saved.volume = clamp01(Number(volume.value) / 100);
 
       /* bouger le curseur rétablit le son : plus besoin de chercher le bouton */
-      if (saved.volume > 0) {
-        saved.muted = false;
-        audio.muted = false;
-      }
+      if (saved.volume > 0) saved.muted = false;
 
       applyVolume(true);
       persist();
@@ -149,26 +172,21 @@
     window.addEventListener("orientationchange", updatePos);
   }
 
-  /* Applique le volume réel + met à jour le pourcentage et l'icône.
-     Le volume du téléphone multiplie le nôtre : on le rappelle quand il
-     est très bas, plutôt que de laisser croire que le curseur ne fait rien. */
+  /* Applique le volume réel + met à jour le pourcentage et l'icône. */
   function applyVolume(announce) {
     const level = toLevel(saved.volume);
 
-    audio.volume = level;
-    audio.muted = saved.muted;
+    audio.volume = Math.min(1, level);
+    audio.muted = saved.muted || isSilent();
 
     volume.value = String(Math.round(saved.volume * 100));
-    panel.querySelector("[data-music-val]").textContent = Math.round(saved.volume * 100) + "%";
-    muteBtn.textContent = saved.muted || saved.volume === 0 ? "🔇" : "🔊";
+    volumeLabel.textContent = Math.round(saved.volume * 100) + "%";
+    muteBtn.textContent = audio.muted ? "🔇" : "🔊";
 
     if (!announce) return;
 
-    if (saved.volume === 0) {
-      note("Son coupé par le volume.");
-    } else {
-      note(tracks[current] ? tracks[current].label : "");
-    }
+    if (isSilent()) note("Son coupé.");
+    else note(tracks[current] ? "Lecture : " + tracks[current].label : "");
   }
 
   const note = msg => {
@@ -186,13 +204,17 @@
      appui de la visite pour relancer la musique là où elle s'était
      arrêtée, sans rien demander. */
   function armResume() {
+    if (armed) return;
     if (!saved.playing || !tracks.length) return;
+
+    armed = true;
 
     const resume = () => {
       document.removeEventListener("pointerdown", resume, true);
+      armed = false;
 
-      audio.muted = saved.muted;
-      audio.volume = toLevel(saved.volume);
+      audio.muted = saved.muted || isSilent();
+      audio.volume = Math.min(1, toLevel(saved.volume));
 
       const p = audio.play();
       if (p && typeof p.catch === "function") {
@@ -208,8 +230,8 @@
 
     if (audio.paused) {
       if (!audio.src) select(current, false);
-      audio.muted = saved.muted;
-      audio.volume = toLevel(saved.volume);
+      audio.muted = saved.muted || isSilent();
+      audio.volume = Math.min(1, toLevel(saved.volume));
 
       const p = audio.play();
 
@@ -228,13 +250,12 @@
     }
   }
 
-  /* Coupe immédiate : le son s'arrête et le bouton revient sur lecture,
-     mais la position est conservée : on reprend où on s'était arrêté. */
+  /* Coupe immédiate : le son s'arrête, la position est conservée. */
   function toggleMute() {
     saved.muted = !saved.muted;
-    audio.muted = saved.muted;
-    muteBtn.textContent = saved.muted ? "🔇" : "🔊";
-    note(saved.muted ? "Son coupé — relance avec le curseur ou l'icône." : "Son rétabli.");
+    audio.muted = saved.muted || isSilent();
+    muteBtn.textContent = audio.muted ? "🔇" : "🔊";
+    note(audio.muted ? "Son coupé." : "Son rétabli.");
     persist();
   }
 
@@ -247,11 +268,11 @@
     audio.src = tracks[current].src;
     if (picker) picker.value = String(current);
 
-    note(tracks[current].label);
+    note("Lecture : " + tracks[current].label);
 
     if (autoplay) {
-      audio.muted = saved.muted;
-      audio.volume = toLevel(saved.volume);
+      audio.muted = saved.muted || isSilent();
+      audio.volume = Math.min(1, toLevel(saved.volume));
       audio.play().then(() => setPlaying(true)).catch(() => {
         setPlaying(false);
         note("Appuie d'abord quelque part sur la page, puis relance la lecture.");
