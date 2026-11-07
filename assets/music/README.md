@@ -24,6 +24,25 @@ https://exemple.com/son-externe.mp3
 > Une adresse complète (`https://…`) fonctionne aussi : c'est pratique pour
 > un son hébergé ailleurs, sans le stocker dans le dépôt.
 
+## ⚠️ L'erreur à ne pas refaire
+
+Les lignes qui commencent par `#` sont des **commentaires** : elles ne comptent pas.
+Si le nom d'un fichier est écrit **sur** une ligne qui commence par `#`, le lecteur
+l'ignore et le son n'apparaît pas dans la liste.
+
+❌ Mauvais
+
+```
+#   2. petunias.mp3
+```
+
+✅ Bon — le nom est **seul sur sa ligne**, sous les explications
+
+```
+# Les sons enregistrés (un nom par ligne, ici en bas) :
+petunias.mp3
+```
+
 ## Retirer un son
 
 - Efface simplement sa ligne dans `playlist.txt` (le fichier peut rester en place).
@@ -39,22 +58,38 @@ tout seuls, en boucle.
 
 Le lecteur est **caché** : aucun bouton visible pour les visiteurs.
 
-**Appui long (1,2 s) sur le logo de la boutique**, en haut à gauche.
-Le même geste referme le lecteur.
+**Un simple clic sur la mention du pied de page** (« © 2026 WINTERFELL38 🛍️ »),
+tout en bas du site. Le même clic referme le lecteur.
+
+> Le logo en haut à gauche, lui, ramène à l'accueil. Il ne sert plus à ouvrir
+> le lecteur.
 
 ## Les réglages
 
 - **▶ / ❙❙** : lancer ou mettre en pause.
 - **Liste déroulante** : choisir le son.
 - **🔊 / 🔇** : couper ou rétablir le son immédiatement.
-- **Curseur + pourcentage** : régler le volume.
+- **Curseur 0 → 100 avec pourcentage** : régler le volume.
 
 Le volume, le son choisi et l'état coupé sont **mémorisés** sur ton appareil.
-Rien ne se lance automatiquement à l'ouverture du site : la lecture démarre
-quand on appuie sur ▶.
+Bouger le curseur rétablit le son tout seul si tu avais coupé : pas besoin de
+chercher le bouton 🔊.
+
+## Après un rafraîchissement de la page
+
+Rien ne se lance automatiquement à l'ouverture du site : les navigateurs
+interdisent le son sans un geste de la personne. Mais si la musique jouait
+avant que tu rafraîchisses, elle **repart au premier appui** n'importe où sur
+la page (menu, bouton, lien…) — tu n'as pas à rappuyer sur ▶.
+
+## Le volume ne semble pas changer grand-chose
+
+C'est presque toujours **le volume du téléphone**, qui multiplie celui du site :
+s'il est à 20 %, monter le curseur de 35 % à 100 % s'entendra à peine.
+Monte d'abord le son de l'appareil, puis règle le curseur.
 
 ## Si un son ne se lance pas
 
-- Vérifie que le nom dans `playlist.txt` est **exactement** celui du fichier (majuscules, tirets, extension).
+- Vérifie que le nom dans `playlist.txt` est **exactement** celui du fichier (majuscules, tirets, extension) et qu'il n'est pas sur une ligne `#`.
 - Attends une minute après le commit : GitHub Pages met la mise à jour en ligne avec un léger délai.
-- Sur mobile, appuie d'abord quelque part sur la page, puis sur ▶.
+- Force le rechargement sur ton téléphone (ferme l'onglet et rouvre le site).
