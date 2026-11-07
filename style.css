@@ -502,6 +502,27 @@ footer{text-align:center;padding:2rem;color:var(--muted)}
 .price-detail{font-size:1.5rem;margin:.6rem 0 1rem}
 .price-detail small{font-weight:600;font-size:.85rem}
 
+/* ---------------- Fiche produit : les deux boutons ---------------- */
+
+.detail-actions{
+  display:flex;
+  flex-direction:column;
+  gap:.6rem;
+  margin-top:.4rem;
+}
+
+/* Le bouton principal garde sa place ; le second reste plus discret pour
+   ne pas concurrencer l'achat direct, tout en restant bien visible. */
+.btn-go-cart{
+  border-width:2px;
+  font-size:.95rem;
+}
+
+.btn-go-cart:hover{
+  border-color:var(--secondary);
+  color:var(--secondary);
+}
+
 /* ---------------- Adaptations mobiles ---------------- */
 
 @media (max-width:760px){
@@ -563,7 +584,7 @@ footer{text-align:center;padding:2rem;color:var(--muted)}
     height:100dvh;
     max-height:100dvh;
     border-radius:0;
-    padding:12px 14px calc(105px + env(safe-area-inset-bottom));
+    padding:12px 14px calc(200px + env(safe-area-inset-bottom));
     overflow-y:auto;
     overscroll-behavior:contain;
     border-top:4px solid var(--primary);
@@ -640,15 +661,33 @@ footer{text-align:center;padding:2rem;color:var(--muted)}
     max-height:300px;
   }
 
-  .product-dialog #detailAdd{
+  /* Les deux boutons sont collés en bas de la fiche, l'un sous l'autre */
+  .product-dialog .detail-actions{
     position:fixed;
     left:14px;
     right:14px;
     bottom:calc(12px + env(safe-area-inset-bottom));
-    width:calc(100% - 28px);
     z-index:50;
+    gap:.5rem;
+    margin:0;
+    background:var(--surface);
+    padding-top:.5rem;
+  }
+
+  .product-dialog .detail-actions .btn{
+    width:100%;
     margin:0;
     box-shadow:0 0 25px var(--glow);
+  }
+
+  /* L'ancien bouton fixé seul n'a plus lieu d'être : c'est le bloc
+     .detail-actions qui est collé en bas. */
+  .product-dialog #detailAdd{
+    position:static;
+    left:auto;
+    right:auto;
+    bottom:auto;
+    width:100%;
   }
 }
 
