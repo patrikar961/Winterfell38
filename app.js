@@ -20,6 +20,8 @@
       "'": "&#39;"
     }[c]));
 
+  const TOAST_DURATION = 1500;
+
   const toast = msg => {
     const t = $("#toast");
     if (!t) return;
@@ -30,11 +32,11 @@
     t.textContent = msg;
     t.classList.add("show");
 
-    // Masque automatiquement la notification après 2 secondes
+    // Masque automatiquement la notification
     t._t = setTimeout(() => {
       t.classList.remove("show");
       t._t = null;
-    }, 2000);
+    }, TOAST_DURATION);
   };
 
   const mediaList = p => (Array.isArray(p.media) ? p.media.filter(Boolean) : []);
@@ -497,14 +499,16 @@
   /* glissement du doigt sur le carrousel */
   (() => {
     const gallery = $("#detailGallery");
+    if (!gallery) return;
+
     let startX = 0;
     let startY = 0;
     let tracking = false;
 
     gallery.addEventListener("touchstart", e => {
-      if (e.touches.length !== 1) return;
-      startX = e.touches[0].clientX;
-      startY = e.touches[0].clientY;
+      const t = e.touches[0];
+      startX = t.clientX;
+      startY = t.clientY;
       tracking = true;
     }, { passive: true });
 
@@ -516,299 +520,297 @@
       const dx = t.clientX - startX;
       const dy = t.clientY - startY;
 
+      /* seuil horizontal : évite de changer de média pendant un scroll vertical */
       if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) {
         goMedia(dx < 0 ? mediaIndex + 1 : mediaIndex - 1);
       }
     }, { passive: true });
   })();
 
-  /* quantité : boutons − / + */
-  $$("[data-stepper]").forEach(box => {
-    const input = $("input", box);
+  /* ---------------- Variantes & quantité : boutons ---------------- */
 
-    $$("button", box).forEach(b => {
-      b.addEventListener("click", () => {
-        const step = Number(b.dataset.step) || 0;
-        const next = Math.max(1, Math.min(99, (parseInt(input.value, 10) || 1) + step));
-        input.value = String(next);
-        updateDetailPrice();
-      });
-    });
+  document.addEventListener("click", e => {
+    const step = e.target.closest("[data-step]");
+    if (!step) return;
 
-    input.addEventListener("input", updateDetailPrice);
-    input.addEventListener("change", () => {
-      input.value = String(Math.max(1, Math.min(99, parseInt(input.value, 10) || 1)));
-      updateDetailPrice();
-    });
+    const input = step.parentElement.querySelector("input[type=number]");
+    if (!input) return;
+
+    const min = parseInt(input.min || "1", 10);
+    const max = parseInt(input.max || "99", 10);
+    const next = (parseInt(input.value, 10) || 1) + Number(step.dataset.step);
+
+    input.value = Math.max(min, Math.min(max, next));
+    input.dispatchEvent(new Event("input", { bubbles: true }));
   });
 
-  $("#closeProduct").addEventListener("click", () => productDialog.close());
-
-  productDialog.addEventListener("click", e => {
-    if (e.target === productDialog) productDialog.close();
+  document.addEventListener("input", e => {
+    if (e.target.id === "detailQty") updateDetailPrice();
   });
 
   /* ---------------- Panier ---------------- */
 
-  let cart = {};
+  const CART_KEY = "winterfell38_cart";
 
-  try {
-    cart = JSON.parse(localStorage.getItem("cart") || "{}") || {};
-  } catch {
-    cart = {};
-  }
+  const cart = new Map();
 
-  const cartKey = (id, vi) => `${id}::${vi}`;
-
-  const parseKey = key => {
-    const [id, vi] = String(key).split("::");
-    return { id, vi: Number(vi || 0) };
-  };
-
-  const save = () => {
+  const loadCart = () => {
     try {
-      localStorage.setItem("cart", JSON.stringify(cart));
+      const raw = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
+
+      (Array.isArray(raw) ? raw : []).forEach(item => {
+        if (!item || !item.id || !item.qty) return;
+
+        cart.set(String(item.id) + "|" + String(item.variant ?? 0), {
+          id: String(item.id),
+          variant: Number(item.variant ?? 0),
+          qty: Math.max(1, Math.min(99, Number(item.qty) || 1))
+        });
+      });
     } catch {
-      /* stockage indisponible : le panier reste en mémoire */
+      /* données locales illisibles : on repart d'un panier vide */
     }
   };
 
-  const cartRows = () =>
-    Object.entries(cart)
-      .map(([key, q]) => {
-        const { id, vi } = parseKey(key);
-        const p = PRODUCTS.find(x => String(x.id) === id);
+  const saveCart = () => {
+    try {
+      localStorage.setItem(CART_KEY, JSON.stringify(Array.from(cart.values())));
+    } catch {
+      /* mode privé : le panier reste en mémoire */
+    }
+  };
 
-        return {
-          key,
-          id,
-          vi,
-          p,
-          q: Number(q),
-          price: p ? variantPrice(p, vi) : 0
-        };
-      })
-      .filter(x => x.p && x.q > 0);
+  const findProduct = id => PRODUCTS.find(p => String(p.id) === String(id));
 
-  const total = () => cartRows().reduce((sum, x) => sum + x.price * x.q, 0);
+  const cartCount = () => Array.from(cart.values()).reduce((n, i) => n + i.qty, 0);
 
-  function renderCart() {
-    const items = cartRows();
+  const cartTotal = () =>
+    Array.from(cart.values()).reduce((sum, i) => {
+      const p = findProduct(i.id);
+      if (!p) return sum;
 
-    $("#cartItems").innerHTML = items.length
-      ? items.map(x => {
-          const v = variantsOf(x.p)[x.vi] || variantsOf(x.p)[0];
+      return sum + variantPrice(p, i.variant) * i.qty;
+    }, 0);
 
-          return `
-            <div class="line">
-              <span class="line-info">
-                <strong>${esc(x.p.emoji || "")} ${esc(x.p.name)}</strong>
-                <small class="muted">${esc(v.name)} · ${fmt(x.price)} / unité</small>
-              </span>
-              <span class="qty">
-                <button type="button" data-dec="${esc(x.key)}" aria-label="Retirer un article">−</button>
-                ${x.q}
-                <button type="button" data-inc="${esc(x.key)}" aria-label="Ajouter un article">+</button>
-              </span>
-              <strong class="line-total">${fmt(x.price * x.q)}</strong>
-            </div>
-          `;
-        }).join("")
-      : '<p class="muted">Votre panier est vide.</p>';
+  function addToCart(id, variant, qty) {
+    const p = findProduct(id);
+    if (!p) return;
 
-    $("#cartCount").textContent = items.reduce((sum, x) => sum + x.q, 0);
-    $("#cartTotal").textContent = fmt(total());
-    $("#orderTotal").textContent = fmt(total());
+    const key = String(id) + "|" + String(variant);
+    const line = cart.get(key) || { id: String(id), variant: Number(variant), qty: 0 };
+
+    line.qty = Math.max(1, Math.min(99, line.qty + qty));
+    cart.set(key, line);
+
+    saveCart();
+    paintCart();
+
+    toast("Ajouté au panier 🛒");
   }
 
-  function addToCart(id, vi, qty = 1) {
-    const key = cartKey(id, vi);
-    cart[key] = (cart[key] || 0) + qty;
-    save();
-    renderCart();
-    toast("Ajouté au panier 🛍️");
+  function paintCart() {
+    const count = $("#cartCount");
+    if (count) count.textContent = cartCount();
+
+    const box = $("#cartItems");
+
+    if (box) {
+      box.innerHTML = cart.size
+        ? Array.from(cart.values()).map(line => {
+            const p = findProduct(line.id);
+            if (!p) return "";
+
+            const v = variantsOf(p)[line.variant] || variantsOf(p)[0];
+            const unit = variantPrice(p, line.variant);
+
+            return `
+              <div class="line">
+                <div class="line-info">
+                  <strong>${esc(p.name)}</strong>
+                  <small class="muted">${esc(v.name)} — ${fmt(unit)}</small>
+                </div>
+                <div class="qty">
+                  <button type="button" data-line-minus="${esc(line.id)}|${line.variant}" aria-label="Diminuer">−</button>
+                  <span>${line.qty}</span>
+                  <button type="button" data-line-plus="${esc(line.id)}|${line.variant}" aria-label="Augmenter">+</button>
+                </div>
+                <span class="line-total">${fmt(unit * line.qty)}</span>
+              </div>
+            `;
+          }).join("")
+        : '<p class="muted">Votre panier est vide.</p>';
+    }
+
+    const total = $("#cartTotal");
+    if (total) total.textContent = fmt(cartTotal());
+
+    const orderTotal = $("#orderTotal");
+    if (orderTotal) orderTotal.textContent = fmt(cartTotal());
   }
 
-  $("#detailAdd").addEventListener("click", () => {
-    if (!selectedProduct) return;
+  function changeLine(payload, delta) {
+    const line = cart.get(payload);
+    if (!line) return;
 
-    const qty = Math.max(1, Math.min(99, parseInt($("#detailQty").value, 10) || 1));
+    line.qty += delta;
 
-    addToCart(selectedProduct.id, selectedVariant, qty);
-    productDialog.close();
-  });
+    if (line.qty < 1) cart.delete(payload);
+    else line.qty = Math.min(99, line.qty);
+
+    saveCart();
+    paintCart();
+  }
+
+  loadCart();
+  paintCart();
 
   document.addEventListener("click", e => {
-    const d = e.target.dataset;
+    const minus = e.target.closest("[data-line-minus]");
+    const plus = e.target.closest("[data-line-plus]");
 
-    if (d.inc) {
-      cart[d.inc] = (cart[d.inc] || 0) + 1;
-      save();
-      renderCart();
-    } else if (d.dec) {
-      cart[d.dec] = (cart[d.dec] || 0) - 1;
-      if (cart[d.dec] <= 0) delete cart[d.dec];
-      save();
-      renderCart();
-    }
+    if (minus) changeLine(minus.dataset.lineMinus, -1);
+    if (plus) changeLine(plus.dataset.linePlus, 1);
   });
+
+  /* Bouton « Ajouter au panier » de la fiche produit */
+
+  const detailAdd = $("#detailAdd");
+
+  if (detailAdd) {
+    detailAdd.addEventListener("click", () => {
+      if (!selectedProduct) return;
+
+      const qty = Math.max(1, Math.min(99, parseInt($("#detailQty").value, 10) || 1));
+
+      addToCart(selectedProduct.id, selectedVariant, qty);
+    });
+  }
+
+  /* ---------------- Ouverture / fermeture du panier ---------------- */
 
   const drawer = $("#cart");
   const overlay = $("#overlay");
 
-  const openCart = () => {
+  function openCart() {
+    if (!drawer) return;
+
     drawer.classList.add("open");
-    overlay.classList.add("show");
     drawer.setAttribute("aria-hidden", "false");
-  };
+    if (overlay) overlay.classList.add("show");
+  }
 
-  const closeCart = () => {
+  function closeCart() {
+    if (!drawer) return;
+
     drawer.classList.remove("open");
-    overlay.classList.remove("show");
     drawer.setAttribute("aria-hidden", "true");
-  };
+    if (overlay) overlay.classList.remove("show");
+  }
 
-  $("#openCart").addEventListener("click", openCart);
-  overlay.addEventListener("click", closeCart);
+  const openCartBtn = $("#openCart");
+  if (openCartBtn) openCartBtn.addEventListener("click", openCart);
 
-  $$("[data-close]", drawer).forEach(b => b.addEventListener("click", closeCart));
+  if (overlay) overlay.addEventListener("click", closeCart);
 
-  document.addEventListener("keydown", e => {
-    if (e.key === "Escape") closeCart();
-  });
-
-  renderCart();
+  $$("[data-close]").forEach(b => b.addEventListener("click", closeCart));
 
   /* ---------------- Commande ---------------- */
 
-  const dlg = $("#orderDialog");
-  const form = $("#orderForm");
-  const submit = $("#submitOrder");
+  const orderDialog = $("#orderDialog");
+  const toOrder = $("#toOrder");
 
-  $("#toOrder").addEventListener("click", () => {
-    if (!cartRows().length) {
-      toast("Votre panier est vide");
-      return;
-    }
+  if (toOrder && orderDialog) {
+    toOrder.addEventListener("click", () => {
+      if (!cart.size) {
+        toast("Votre panier est vide");
+        return;
+      }
 
-    closeCart();
-    dlg.showModal();
-  });
-
-  submit.addEventListener("click", async () => {
-    if (!form.reportValidity()) return;
-
-    if (!MAKE_WEBHOOK_URL || !/^https:\/\/hook\.[^/]+\.make\.com\//.test(MAKE_WEBHOOK_URL)) {
-      toast("Configurez l'URL du webhook Make dans products.js");
-      return;
-    }
-
-    const f = new FormData(form);
-    const rows = cartRows();
-
-    const payload = {
-      source: "corner69-site",
-      shop: SHOP.name,
-      order_date: new Date().toISOString(),
-      customer: {
-        fullname: String(f.get("fullname") || "").trim(),
-        email: String(f.get("email") || "").trim(),
-        phone: String(f.get("phone") || "").trim(),
-        address: String(f.get("address") || "").trim(),
-        shipping: String(f.get("shipping") || ""),
-        message: String(f.get("message") || "").trim()
-      },
-      items: rows.map(x => ({
-        product_id: x.p.id,
-        product_name: x.p.name,
-        variant: (variantsOf(x.p)[x.vi] || {}).name || "Standard",
-        quantity: x.q,
-        unit_price: x.price,
-        line_total: Math.round(x.price * x.q * 100) / 100
-      })),
-      currency: SHOP.currency,
-      total: Math.round(total() * 100) / 100
-    };
-
-    submit.disabled = true;
-    submit.textContent = "Envoi en cours…";
-
-    try {
-      const response = await fetch(MAKE_WEBHOOK_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-      dlg.close();
-      form.reset();
-      cart = {};
-      save();
-      renderCart();
-      toast("Commande transmise avec succès");
-    } catch (err) {
-      console.error("Webhook error:", err);
-      toast("Échec de l'envoi. Vérifiez le webhook Make et réessayez.");
-    } finally {
-      submit.disabled = false;
-      submit.textContent = "Préparer la demande";
-    }
-  });
-
-  /* ---------------- Avis ---------------- */
-
-  const local = () => {
-    try {
-      return JSON.parse(localStorage.getItem("reviews") || "[]");
-    } catch {
-      return [];
-    }
-  };
-
-  function renderReviews() {
-    $("#reviews").innerHTML = [...SAMPLE_REVIEWS, ...local()]
-      .map(r => {
-        const rating = Math.max(0, Math.min(5, Number(r.rating) || 0));
-
-        return `
-          <div class="card review">
-            <div class="review-head">
-              <strong>${esc(r.name)}</strong>
-              <span class="tag">${r.sample ? "Livré(e) 🚚" : "En cours de traitement"}</span>
-            </div>
-            <div class="stars" aria-label="${rating} sur 5">
-              ${"★".repeat(rating)}${"☆".repeat(5 - rating)}
-            </div>
-            <p>${esc(r.text)}</p>
-          </div>
-        `;
-      }).join("");
+      closeCart();
+      orderDialog.showModal();
+    });
   }
 
-  $("#reviewForm").addEventListener("submit", e => {
-    e.preventDefault();
+  const orderForm = $("#orderForm");
+  const submitOrder = $("#submitOrder");
 
-    const f = new FormData(e.target);
-    const review = {
-      name: String(f.get("name") || "").trim(),
-      rating: Math.min(5, Math.max(1, Number(f.get("rating")) || 5)),
-      text: String(f.get("text") || "").trim()
-    };
+  if (submitOrder && orderForm && orderDialog) {
+    submitOrder.addEventListener("click", async () => {
+      if (!orderForm.reportValidity()) return;
 
-    if (!review.name || !review.text) return;
+      const data = new FormData(orderForm);
 
-    try {
-      localStorage.setItem("reviews", JSON.stringify([...local(), review]));
-    } catch {
-      /* stockage indisponible */
-    }
+      const lines = Array.from(cart.values()).map(line => {
+        const p = findProduct(line.id);
+        if (!p) return "";
 
-    e.target.reset();
-    renderReviews();
-    toast("Avis ajouté sur cet appareil");
-  });
+        const v = variantsOf(p)[line.variant] || variantsOf(p)[0];
+        const unit = variantPrice(p, line.variant);
 
-  renderReviews();
+        return `• ${p.name} (${v.name}) × ${line.qty} = ${fmt(unit * line.qty)}`;
+      }).filter(Boolean).join("\n");
+
+      const message = [
+        "Nouvelle commande — " + SHOP.name,
+        "",
+        lines,
+        "",
+        "Total estimé : " + fmt(cartTotal()),
+        "",
+        "Nom / pseudo : " + (data.get("fullname") || "-"),
+        "Téléphone : " + (data.get("phone") || "-"),
+        "Adresse : " + (data.get("address") || "-"),
+        "Mode de livraison : " + (data.get("shipping") || "-"),
+        "Informations : " + (data.get("message") || "-")
+      ].join("\n");
+
+      const endpoint = SHOP.orderEndpoint;
+
+      if (endpoint) {
+        submitOrder.disabled = true;
+
+        try {
+          await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              shop: SHOP.name,
+              total: cartTotal(),
+              items: Array.from(cart.values()),
+              customer: {
+                fullname: data.get("fullname") || "",
+                phone: data.get("phone") || "",
+                address: data.get("address") || "",
+                shipping: data.get("shipping") || "",
+                message: data.get("message") || ""
+              }
+            })
+          });
+        } catch {
+          /* l'envoi direct échoue : l'utilisateur garde le repli Telegram/WhatsApp */
+        } finally {
+          submitOrder.disabled = false;
+        }
+      }
+
+      const wa = String(SHOP.whatsapp || "").replace(/\D/g, "");
+
+      const target = wa
+        ? `https://wa.me/${wa}?text=${encodeURIComponent(message)}`
+        : (SHOP.telegram ? `${SHOP.telegram}` : "");
+
+      if (target) {
+        window.open(target, "_blank", "noopener,noreferrer");
+      }
+
+      toast("Demande envoyée ✅");
+
+      cart.clear();
+      saveCart();
+      paintCart();
+
+      orderDialog.close();
+      orderForm.reset();
+    });
+  }
 })();
