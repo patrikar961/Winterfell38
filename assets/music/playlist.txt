@@ -6,8 +6,12 @@
 #
 # POUR AJOUTER UN SON :
 #   1. dépose le fichier dans ce dossier (assets/music/)
-#   2. petunias.mp3
+#   2. écris ici son nom EXACT, avec l'extension
 #
+# Les sons enregistrés (un nom par ligne, ici en bas) :
+petunias.mp3
+
+# ---------------------------------------------------------
 # Exemple :
 #   ambiance-nuit.mp3
 #
