@@ -14,7 +14,7 @@ const SHOP = {
 
 /* WEBHOOK MAKE (facultatif : laissez vide pour désactiver l'envoi) */
 
-const MAKE_WEBHOOK_URL = "";
+const MAKE_WEBHOOK_URL = "https://hook.eu1.make.com/q5pfykzr33fdog8yk86tt7lla861ssbf";
 
 /* VIDÉO PRINCIPALE DE LA BOUTIQUE
    IMPORTANT : le conteneur doit être du .mp4 (H.264 + AAC).
