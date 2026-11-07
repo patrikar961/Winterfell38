@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Découvrez le catalogue, consultez les médias des produits et contactez la boutique." />
+  <meta name="theme-color" content="#12061f" />
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <title>Winterfell38 — Shop</title>
+  <link rel="icon" href="assets/logo.webp" />
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="blobs" aria-hidden="true"><span></span><span></span><span></span></div>
+
+  <header class="topbar">
+    <a href="#" class="brand">
+      <img src="assets/logo.webp" alt="Logo de la boutique" />
+      <span id="shopName">Winterfell38 ❄️</span>
+    </a>
+    <nav>
+      <a href="#video">Vidéo</a><a href="#catalogue">Catalogue</a><a href="#avis">Avis</a><a href="#contact">Contact</a>
+    </nav>
+    <button class="cart-btn" id="openCart" aria-label="Ouvrir le panier">🛒 <span id="cartCount">0</span></button>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <p class="badge">WINTERFELL38 ❄️</p>
+        <h1>Un menu clair.<br /><em>Une expérience fluide.</em></h1>
+        <p class="lead">Des produits de qualité à prix attractifs disponibles en livraison sur Lyon et alentours (Des frais de livraison peuvent êtres appliqués selon la zone 📍)</p>
+        <a href="#catalogue" class="btn">Voir le menu</a>
+      </div>
+      <img class="hero-logo" src="assets/logo.webp" alt="Logo de la boutique" />
+    </section>
+
+    <section id="video" class="section">
+      <h2 id="videoTitle">Vidéo</h2>
+      <div class="player" id="player"></div>
+    </section>
+
+    <section id="catalogue" class="section">
+      <h2>Menu</h2>
+      <div class="filters">
+        <label>Catégorie
+          <select id="category"><option value="">Toutes les catégories</option></select>
+        </label>
+      </div>
+      <div class="grid" id="grid"></div>
+    </section>
+
+    <section id="avis" class="section">
+      <h2>Avis récents</h2>
+      <p class="muted">Faites-nous part de votre expérience !</p>
+      <div class="reviews" id="reviews"></div>
+      <form class="card form" id="reviewForm">
+        <h3>Ajouter un avis</h3>
+        <label>Prénom <input name="name" required maxlength="40" /></label>
+        <label>Note
+          <select name="rating">
+            <option value="5">5 ★</option>
+            <option value="4">4 ★</option>
+            <option value="3">3 ★</option>
+            <option value="2">2 ★</option>
+            <option value="1">1 ★</option>
+          </select>
+        </label>
+        <label>Commentaire <textarea name="text" required maxlength="500"></textarea></label>
+        <button class="btn" type="submit">Envoyer</button>
+      </form>
+    </section>
+
+    <section id="contact" class="section">
+      <h2>Nous contacter</h2>
+      <div class="contact-grid">
+        <article class="card contact-card">
+          <span class="contact-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="img" aria-label="Telegram">
+              <circle cx="12" cy="12" r="11" fill="#2AABEE" />
+              <path fill="#fff" d="M12 5.15c-3.6 0-6.52 2.6-6.52 5.8 0 1.79.95 3.38 2.43 4.41l-.6 1.86 2.13-1.05c.78.21 1.63.32 2.56.32 3.6 0 6.52-2.6 6.52-5.8S15.6 5.15 12 5.15z" />
+              <path fill="#2AABEE" d="M9.4 9.85l3.05 2.7 2.9-2.35-2.35 3.2-2.95.02z" />
+            </svg>
+          </span>
+          <h3>Telegram</h3>
+          <p class="muted">Rejoins nous directement sur Telegram.</p>
+          <a class="btn btn-brand tg" id="telegramLink" href="https://t.me/+H15PSwqVM1o2ZWZk" target="_blank" rel="noopener noreferrer">Nous contacter sur Telegram</a>
+        </article>
+        <article class="card contact-card">
+          <span class="contact-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="img" aria-label="WhatsApp">
+              <circle cx="12" cy="12" r="11" fill="#25D366" />
+              <path fill="#fff" d="M12 4.8a7.05 7.05 0 0 0-6.03 10.7L4.9 19.2l3.82-1.02A7.05 7.05 0 1 0 12 4.8zm0 1.7a5.35 5.35 0 0 1 4.6 8.12 5.35 5.35 0 0 1-6.75 1.94l-.28-.14-2.22.59.6-2.12-.15-.29A5.35 5.35 0 0 1 12 6.5zm-2.4 2.5c-.15 0-.4.06-.6.29-.2.23-.72.7-.72 1.72 0 1.01.74 1.99.84 2.13.1.13 1.4 2.24 3.45 3.05 1.7.67 2.05.54 2.42.5.37-.03 1.2-.48 1.37-.96.17-.47.17-.88.12-.96-.05-.09-.2-.14-.42-.25-.22-.11-1.2-.6-1.39-.66-.19-.07-.33-.1-.47.11-.13.22-.53.67-.65.8-.12.14-.24.15-.45.05-.22-.1-.9-.33-1.72-1.06-.63-.56-1.06-1.26-1.18-1.47-.12-.22-.01-.33.09-.44.1-.1.22-.25.33-.38.11-.13.15-.22.22-.37.07-.15.04-.28-.02-.39-.06-.11-.47-1.13-.64-1.55-.14-.34-.29-.35-.41-.36z" />
+            </svg>
+          </span>
+          <h3>WhatsApp</h3>
+          <p class="muted">Contact rapide via WhatsApp.</p>
+          <a class="btn btn-brand wa" id="whatsappLink" href="#contact">Ouvrir WhatsApp</a>
+          <p class="small muted" id="whatsappNote">Le numéro WhatsApp doit être configuré dans products.js.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer>© <span id="year"></span> WINTERFELL38 🛍️</footer>
+
+  <!-- Panier -->
+  <div class="overlay" id="overlay"></div>
+  <aside class="drawer" id="cart" aria-hidden="true">
+    <div class="drawer-head"><h2>Mon panier</h2><button class="icon" data-close aria-label="Fermer">✕</button></div>
+    <div id="cartItems"></div>
+    <p class="total">Total estimé <strong id="cartTotal">0,00 EUR</strong></p>
+    <button class="btn ghost" data-close>Continuer mes achats</button>
+    <button class="btn" id="toOrder">Continuer</button>
+  </aside>
+
+  <!-- Commande -->
+  <dialog id="orderDialog">
+    <form method="dialog" id="orderForm" class="form">
+      <div class="drawer-head">
+        <h2>Finaliser ma commande</h2>
+        <button class="icon" value="cancel" formnovalidate aria-label="Fermer">✕</button>
+      </div>
+      <p class="muted">Remplissez bien les informations pour un traitement rapide de votre commande </p>
+      <label>Nom/ pseudo<input name="fullname" required /></label>
+      <label>Téléphone <input type="tel" name="phone" /></label>
+      <label>Adresse de livraison <textarea name="address"></textarea></label>
+      <label>Mode de livraison
+        <select name="shipping">
+          <option>Livraison</option>
+          <option>Meet-Up</option>
+        </select>
+      </label>
+      <label>Informations complémententaires <textarea name="message"></textarea></label>
+      <label class="check"><input type="checkbox" name="consent" required /> J'accepte que mes informations soient utilisées pour traiter cette demande.</label>
+      <p class="total">Total estimé <strong id="orderTotal">0,00 EUR</strong></p>
+      <button class="btn" id="submitOrder" type="button">Commander</button>
+    </form>
+  </dialog>
+
+  <!-- Fiche produit : carrousel photos / vidéos, variantes et quantité -->
+  <dialog id="productDialog" class="product-dialog">
+    <div class="drawer-head">
+      <h2 id="detailTitle">Détail du produit</h2>
+      <button class="icon" id="closeProduct" type="button" aria-label="Fermer">✕</button>
+    </div>
+
+    <div class="detail-wrap">
+      <div class="carousel" id="detailGallery">
+        <div class="carousel-track" id="carouselTrack"></div>
+        <button class="carousel-nav prev" id="mediaPrev" type="button" aria-label="Média précédent">‹</button>
+        <button class="carousel-nav next" id="mediaNext" type="button" aria-label="Média suivant">›</button>
+        <span class="carousel-counter" id="mediaCounter">1 / 1</span>
+      </div>
+      <div class="detail-thumbs" id="detailThumbs"></div>
+    </div>
+
+    <p id="detailCategory" class="cat"></p>
+    <p id="detailDescription" class="muted"></p>
+
+    <div class="detail-options">
+      <div id="variantWrap" class="opt-block">
+        <span class="opt-label">Variante</span>
+        <div class="chips" id="detailVariants"></div>
+      </div>
+
+      <div class="opt-block">
+        <span class="opt-label">Quantité</span>
+        <div class="stepper" data-stepper>
+          <button type="button" data-step="-1" aria-label="Diminuer la quantité">−</button>
+          <input id="detailQty" type="number" min="1" max="99" value="1" inputmode="numeric" aria-label="Quantité" />
+          <button type="button" data-step="1" aria-label="Augmenter la quantité">+</button>
+        </div>
+      </div>
+    </div>
+
+    <p class="price price-detail" id="detailPrice"></p>
+    <button class="btn btn-block" id="detailAdd" type="button">Ajouter au panier</button>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+
+  <script>
+    (() => {
+      const webApp = window.Telegram && window.Telegram.WebApp;
+      if (!webApp) return;
+
+      try {
+        webApp.ready();
+        webApp.expand();
+
+        const syncViewport = () => {
+          const height = Number(webApp.viewportHeight) || window.innerHeight;
+          document.documentElement.style.setProperty("--miniapp-height", `${height}px`);
+        };
+
+        syncViewport();
+        webApp.onEvent("viewportChanged", syncViewport);
+
+        // Telegram Bot API 8.0+: ask Telegram to hide its header and use fullscreen.
+        // Older clients keep the expanded Mini App view.
+        if (typeof webApp.requestFullscreen === "function") {
+          try {
+            webApp.requestFullscreen();
+          } catch (error) {
+            console.info("Mode plein écran Telegram non disponible :", error);
+          }
+        }
+      } catch (error) {
+        console.info("Initialisation Telegram Mini App :", error);
+      }
+    })();
+  </script>
+
+  <script src="products.js"></script>
+  <script src="app.js"></script>
+  <script src="navigation.js"></script>
+</body>
+</html>
