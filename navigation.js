@@ -117,17 +117,22 @@
       <article class="card about-card">
         <h3>🔐 VERIFICATION NOUVEAU CLIENT</h3>
         <p class="muted">
-          Si une vérification est nécessaire, ses modalités doivent vous
-          être communiquées individuellement par un canal privé adapté.
+           WINTERFELL38 ❄️ — VÉRIFICATION CLIENT ✅
+👋 La famille, on sécurise le corner !
+Pour renforcer la sécurité de nos clients et de nos livreurs, une vérification d’identité est prévue avant toute première commande.
+🪪 ÉTAPE 1 : Présentation du recto d’une pièce d’identité.
+🤳 ÉTAPE 2 : Un selfie permettant de vérifier l’identité.
+✅ Une fois la vérification effectuée, votre demande pourra être examinée.
+⚠️ IMPORTANT : ne publiez jamais vos documents personnels dans le canal ou dans un groupe public. Toute collecte doit passer par notre 📲 contact , pour cela cliquez sur le lien contact ci-dessous.
+La suppression de vos données est immédiate après vérification.
+🤝 Merci pour votre compréhension et votre confiance.
+ WINTERFELL38 ❄️ — DU RESPECT, DE LA CONFIANCE, DU SÉRIEUX. 🤝🏴‍☠️
         </p>
         <p class="muted">
           Ne publiez jamais de pièce d'identité, de selfie ou de document
           personnel dans un canal ou un groupe public.
         </p>
         <p class="muted">
-          Avant toute transmission de données personnelles, demandez
-          quelles informations sont nécessaires, comment elles sont
-          protégées et combien de temps elles sont conservées.
         </p>
       </article>
     </section>
