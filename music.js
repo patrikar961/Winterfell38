@@ -11,7 +11,8 @@
   const PLAYLIST_URL = "assets/music/playlist.txt";
   const STORE_KEY = "winterfell38_music";
 
-  /* Ouverture du lecteur : un simple clic sur le logo de la boutique.
+  /* Ouverture du lecteur : un simple clic sur la mention du pied de page
+     (« © 2026 WINTERFELL38 »). Le logo, lui, ramène à l'accueil.
      Aucun bouton visible pour les visiteurs. */
 
   /* Le volume est piloté par une courbe de puissance : les petits
@@ -63,8 +64,7 @@
   /* position du curseur (0 → 1) transformée en volume réel */
   const toLevel = v => Math.pow(clamp01(v), CURVE);
 
-  /* Suit la page : la musique continue quand tu passes d'une rubrique
-     à l'autre. */
+  /* Suit la page : le panneau se replace au-dessus de la barre de navigation. */
   const updatePos = () => {
     if (!panel || panel.hidden) return;
 
@@ -112,7 +112,6 @@
     audio.loop = false;
 
     applyVolume(false);
-    volume.value = String(Math.round(saved.volume * 100));
 
     playBtn.addEventListener("click", togglePlay);
     muteBtn.addEventListener("click", toggleMute);
@@ -309,15 +308,24 @@
     armResume();
   }
 
-  /* ---------------- Ouverture au clic sur le logo ---------------- */
+  /* ---------------- Ouverture au clic sur le pied de page ---------------- */
 
   function bindTrigger() {
-    const brand = document.querySelector(".topbar .brand");
-    if (!brand) return;
+    const footer = document.querySelector("footer");
+    if (!footer) return;
 
-    /* Un clic simple ouvre ou referme le lecteur. Le logo ne mène plus à
-       l'accueil : c'est lui le bouton du fond sonore. */
-    brand.addEventListener("click", event => {
+    footer.classList.add("music-trigger");
+    footer.setAttribute("role", "button");
+    footer.setAttribute("tabindex", "0");
+    footer.setAttribute("aria-label", "Ouvrir le fond sonore");
+
+    footer.addEventListener("click", event => {
+      event.preventDefault();
+      togglePanel();
+    });
+
+    footer.addEventListener("keydown", event => {
+      if (event.key !== "Enter" && event.key !== " ") return;
       event.preventDefault();
       togglePanel();
     });
