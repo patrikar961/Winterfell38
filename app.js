@@ -584,6 +584,39 @@
     if (e.target.id === "detailQty") updateDetailPrice();
   });
 
+  /* ---------------- Envoi de la commande a Make ----------------
+     Envoi "fire and forget" : on ne bloque jamais le client, et un echec
+     du webhook ne prive pas la commande de son canal WhatsApp. */
+  function postOrderToMake(payload) {
+    const url = String(SHOP.makeWebhook || "").trim();
+    if (!url) return;
+
+    const body = JSON.stringify(payload);
+
+    try {
+      if (navigator.sendBeacon) {
+        const sent = navigator.sendBeacon(url, new Blob([body], { type: "application/json" }));
+        if (sent) return;
+      }
+    } catch {
+      /* sendBeacon indisponible : on passe par fetch */
+    }
+
+    try {
+      fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body,
+        keepalive: true,
+        mode: "cors"
+      }).catch(() => {
+        /* webhook injoignable : WhatsApp reste la garantie */
+      });
+    } catch {
+      /* requete impossible : WhatsApp reste la garantie */
+    }
+  }
+
   /* ---------------- Panier ---------------- */
 
   const CART_KEY = "winterfell38_cart";
@@ -800,34 +833,44 @@
         "Informations : " + (data.get("message") || "-")
       ].join("\n");
 
-      const endpoint = SHOP.orderEndpoint;
+      /* ---------------- Commande vers Make ----------------
+         Le site poste la commande sur le webhook Make, puis WhatsApp s'ouvre
+         dans tous les cas : le client ne voit jamais d'echec, et la commande
+         arrive sur les deux canaux. */
 
-      if (endpoint) {
-        submitOrder.disabled = true;
+      const orderPayload = {
+        source: "site",
+        shop: SHOP.name,
+        order_date: new Date().toLocaleString("fr-FR"),
+        customer: {
+          fullname: data.get("fullname") || "",
+          email: data.get("email") || "",
+          phone: data.get("phone") || "",
+          address: data.get("address") || "",
+          shipping: data.get("shipping") || "",
+          message: data.get("message") || ""
+        },
+        items: Array.from(cart.values()).map(line => {
+          const p = findProduct(line.id);
+          if (!p) return null;
 
-        try {
-          await fetch(endpoint, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              shop: SHOP.name,
-              total: cartTotal(),
-              items: Array.from(cart.values()),
-              customer: {
-                fullname: data.get("fullname") || "",
-                phone: data.get("phone") || "",
-                address: data.get("address") || "",
-                shipping: data.get("shipping") || "",
-                message: data.get("message") || ""
-              }
-            })
-          });
-        } catch {
-          /* l'envoi direct échoue : l'utilisateur garde le repli Telegram/WhatsApp */
-        } finally {
-          submitOrder.disabled = false;
-        }
-      }
+          const v = variantsOf(p)[line.variant] || variantsOf(p)[0];
+          const unit = variantPrice(p, line.variant);
+
+          return {
+            product_id: Number(p.id),
+            product_name: p.name,
+            variant: v.name,
+            quantity: line.qty,
+            unit_price: unit,
+            line_total: unit * line.qty
+          };
+        }).filter(Boolean),
+        currency: SHOP.currency || "EUR",
+        total: cartTotal()
+      };
+
+      postOrderToMake(orderPayload);
 
       const wa2 = String(SHOP.whatsapp || "").replace(/\D/g, "");
 
