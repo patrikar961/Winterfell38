@@ -11,9 +11,8 @@
   const PLAYLIST_URL = "assets/music/playlist.txt";
   const STORE_KEY = "winterfell38_music";
 
-  /* Combinaison d'ouverture du lecteur : un appui long (1,2 s)
-     sur le logo de la boutique. Aucun bouton visible pour les visiteurs. */
-  const HOLD_MS = 1200;
+  /* Ouverture du lecteur : un simple clic sur le logo de la boutique.
+     Aucun bouton visible pour les visiteurs. */
 
   /* Le volume est piloté par une courbe de puissance : les petits
      réglages s'entendent vraiment, au lieu d'être tassés près du maximum. */
@@ -236,7 +235,7 @@
     saved.muted = !saved.muted;
     audio.muted = saved.muted;
     muteBtn.textContent = saved.muted ? "🔇" : "🔊";
-    note(saved.muted ? "Son coupé — relance avec ✕ non, avec le curseur ou l'icône." : "Son rétabli.");
+    note(saved.muted ? "Son coupé — relance avec le curseur ou l'icône." : "Son rétabli.");
     persist();
   }
 
@@ -274,6 +273,11 @@
     panel.classList.remove("show");
   };
 
+  const togglePanel = () => {
+    if (panel && panel.hidden) show();
+    else hide();
+  };
+
   /* ---------------- Chargement de la liste ---------------- */
 
   async function loadTracks() {
@@ -305,39 +309,23 @@
     armResume();
   }
 
-  /* ---------------- Bouton caché ---------------- */
+  /* ---------------- Ouverture au clic sur le logo ---------------- */
 
-  function bindSecretTrigger() {
+  function bindTrigger() {
     const brand = document.querySelector(".topbar .brand");
     if (!brand) return;
 
-    let timer = null;
-
-    const start = () => {
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        timer = null;
-        if (panel && panel.hidden) show();
-        else hide();
-      }, HOLD_MS);
-    };
-
-    const stop = () => {
-      if (timer) {
-        clearTimeout(timer);
-        timer = null;
-      }
-    };
-
-    brand.addEventListener("pointerdown", start);
-    brand.addEventListener("pointerup", stop);
-    brand.addEventListener("pointercancel", stop);
-    brand.addEventListener("pointerleave", stop);
+    /* Un clic simple ouvre ou referme le lecteur. Le logo ne mène plus à
+       l'accueil : c'est lui le bouton du fond sonore. */
+    brand.addEventListener("click", event => {
+      event.preventDefault();
+      togglePanel();
+    });
   }
 
   function init() {
     buildUI();
-    bindSecretTrigger();
+    bindTrigger();
     loadTracks();
   }
 
