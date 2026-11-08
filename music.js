@@ -48,6 +48,7 @@
   let tracks = [];
   let current = 0;
   let armed = false;
+  let pausedByHide = false;
 
   let saved = { volume: 0.6, track: 0, muted: false, playing: false };
 
@@ -352,9 +353,49 @@
     });
   }
 
+  /* ---------------- Silence hors de l'onglet ----------------
+     Dès que la page n'est plus visible, le son se coupe. Il reprend au
+     retour, uniquement s'il jouait avant : une pause voulue par la
+     personne qui écoute n'est jamais annulée. */
+  function bindVisibility() {
+    const pauseIfPlaying = () => {
+      if (!audio || audio.paused) {
+        pausedByHide = false;
+        return;
+      }
+
+      pausedByHide = true;
+      audio.pause();
+    };
+
+    const resumeIfNeeded = () => {
+      if (!pausedByHide || !audio) return;
+
+      pausedByHide = false;
+
+      audio.muted = saved.muted || isSilent();
+      audio.volume = Math.min(1, toLevel(saved.volume));
+
+      const p = audio.play();
+
+      if (p && typeof p.catch === "function") p.catch(() => setPlaying(false));
+    };
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) pauseIfPlaying();
+      else resumeIfNeeded();
+    });
+
+    /* Certains navigateurs mobiles ne déclenchent pas visibilitychange :
+       la sortie de page couvre ces cas-là. */
+    window.addEventListener("pagehide", pauseIfPlaying);
+    window.addEventListener("blur", pauseIfPlaying);
+  }
+
   function init() {
     buildUI();
     bindTrigger();
+    bindVisibility();
     loadTracks();
   }
 
