@@ -17,25 +17,24 @@
 
   /* ---------------- Réglage du volume ----------------
      Le curseur va de 0 à 100. Position = pourcentage affiché.
-     Position 50 = volume habituel (1.00). En dessous, on adoucit ;
-     au-dessus, on amplifie un peu. Chaque cran s'entend. */
-  const GAIN_AT_HALF = 1.0;
-  const BOOST_MAX = 2.5;
+     Le son reste volontairement discret : un fond, pas une sono.
+     Position 0 = silence, 100 = maximum autorisé (0.70). */
+  const GAIN_AT_HALF = 0.12;
+  const BOOST_MAX = 0.35;
 
   const clamp01 = n => Math.max(0, Math.min(1, Number(n) || 0));
 
-  /* position 0 → 1 transformée en volume réel */
+  /* position 0 → 1 transformée en volume réel.
+     Montée régulière et plafonnée : le curseur reste utilisable sur toute
+     sa course, et le son ne dépasse jamais un fond discret. */
   const toLevel = v => {
     const p = clamp01(v);
 
     if (p <= 0) return 0;
-    if (p >= 1) return BOOST_MAX;
 
-    if (p <= 0.5) {
-      return Math.round(GAIN_AT_HALF * Math.pow(p / 0.5, 3) * 1000) / 1000;
-    }
+    if (p <= 0.5) return Math.round(GAIN_AT_HALF * (p / 0.5) * 1000) / 1000;
 
-    return Math.round((GAIN_AT_HALF + (BOOST_MAX - GAIN_AT_HALF) * Math.pow((p - 0.5) / 0.5, 1.6)) * 1000) / 1000;
+    return Math.round((GAIN_AT_HALF + (BOOST_MAX - GAIN_AT_HALF) * ((p - 0.5) / 0.5)) * 1000) / 1000;
   };
 
   let audio = null;
@@ -50,19 +49,19 @@
   let armed = false;
   let pausedByHide = false;
 
-  let saved = { volume: 0.6, track: 0, muted: false, playing: false };
+  let saved = { volume: 0.35, track: 0, muted: false, playing: false };
 
   try {
     saved = Object.assign(saved, JSON.parse(localStorage.getItem(STORE_KEY) || "{}"));
 
     /* ancienne échelle 0 → 1 : on la ramène sur la nouvelle */
-    if (Number(saved.volume) <= 1) saved.volume = clamp01(Number(saved.volume) || 0.6);
+    if (Number(saved.volume) <= 1) saved.volume = clamp01(Number(saved.volume) || 0.35);
     else saved.volume = clamp01(Number(saved.volume) / 100);
   } catch {
     /* préférences illisibles : on repart des valeurs par défaut */
   }
 
-  if (!saved.volume) saved.volume = 0.6;
+  if (!saved.volume) saved.volume = 0.35;
 
   const persist = () => {
     try {
@@ -121,7 +120,7 @@
       <div class="music-row music-vol-row">
         <button type="button" class="music-mute" data-music-mute aria-label="Couper le son">🔊</button>
         <input class="music-vol" type="range" min="0" max="100" step="1" data-music-vol aria-label="Volume" />
-        <span class="music-val" data-music-val>60%</span>
+        <span class="music-val" data-music-val>35%</span>
       </div>
       <p class="music-note" data-music-note></p>
     `;
@@ -146,15 +145,26 @@
     muteBtn.addEventListener("click", toggleMute);
     picker.addEventListener("change", () => select(Number(picker.value), true));
 
-    volume.addEventListener("input", () => {
+    /* Le curseur agit en direct : chaque cran se répercute tout de suite
+       sur le son. On écrit le volume sans réécrire la position du curseur,
+       sinon il revient en arrière pendant le glissement. */
+    const onVolume = () => {
       saved.volume = clamp01(Number(volume.value) / 100);
 
       /* bouger le curseur rétablit le son : plus besoin de chercher le bouton */
       if (saved.volume > 0) saved.muted = false;
 
-      applyVolume(true);
+      audio.volume = Math.min(1, toLevel(saved.volume));
+      audio.muted = saved.muted || isSilent();
+
+      volumeLabel.textContent = Math.round(saved.volume * 100) + "%";
+      muteBtn.textContent = audio.muted ? "🔇" : "🔊";
+
       persist();
-    });
+    };
+
+    volume.addEventListener("input", onVolume);
+    volume.addEventListener("change", onVolume);
 
     panel.addEventListener("click", e => {
       if (e.target.closest("[data-music-close]")) hide();
@@ -175,7 +185,9 @@
     window.addEventListener("orientationchange", updatePos);
   }
 
-  /* Applique le volume réel + met à jour le pourcentage et l'icône. */
+  /* Applique le volume réel + met à jour le pourcentage et l'icône.
+     Utilisé à l'ouverture : la position du curseur peut alors être écrite
+     sans gêner personne. */
   function applyVolume(announce) {
     const level = toLevel(saved.volume);
 
