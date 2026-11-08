@@ -17,24 +17,23 @@
 
   /* ---------------- Réglage du volume ----------------
      Le curseur va de 0 à 100. Position = pourcentage affiché.
-     Le son reste volontairement discret : un fond, pas une sono.
-     Position 0 = silence, 100 = maximum autorisé (0.70). */
-  const GAIN_AT_HALF = 0.12;
-  const BOOST_MAX = 0.35;
+     Un seul réglage, volontairement discret : un fond, pas une sono.
+     Position 0 = silence, 100 = plafond absolu (0.18). */
+  const HARD_MAX = 0.18;
+  const GAIN_AT_HALF = 0.06;
+  const BOOST_MAX = 0.18;
 
   const clamp01 = n => Math.max(0, Math.min(1, Number(n) || 0));
 
   /* position 0 → 1 transformée en volume réel.
-     Montée régulière et plafonnée : le curseur reste utilisable sur toute
-     sa course, et le son ne dépasse jamais un fond discret. */
+     Une seule pente, du silence au plafond : chaque cran du curseur
+     s'entend, et rien ne peut dépasser HARD_MAX. */
   const toLevel = v => {
     const p = clamp01(v);
 
     if (p <= 0) return 0;
 
-    if (p <= 0.5) return Math.round(GAIN_AT_HALF * (p / 0.5) * 1000) / 1000;
-
-    return Math.round((GAIN_AT_HALF + (BOOST_MAX - GAIN_AT_HALF) * ((p - 0.5) / 0.5)) * 1000) / 1000;
+    return Math.round(Math.min(HARD_MAX, BOOST_MAX * p) * 1000) / 1000;
   };
 
   let audio = null;
@@ -57,6 +56,10 @@
     /* ancienne échelle 0 → 1 : on la ramène sur la nouvelle */
     if (Number(saved.volume) <= 1) saved.volume = clamp01(Number(saved.volume) || 0.35);
     else saved.volume = clamp01(Number(saved.volume) / 100);
+
+    /* Un ancien réglage à 60 % donnait un son déjà trop fort : on ramène
+       tout ce qui dépasse le plafond à une valeur de fond acceptable. */
+    if (saved.volume > 0.5) saved.volume = 0.5;
   } catch {
     /* préférences illisibles : on repart des valeurs par défaut */
   }
@@ -170,9 +173,10 @@
       if (e.target.closest("[data-music-close]")) hide();
     });
 
+    /* Fin du son : on s'arrête là. Aucun redémarrage automatique. */
     audio.addEventListener("ended", () => {
-      if (!tracks.length) return;
-      select((current + 1) % tracks.length, saved.playing);
+      setPlaying(false);
+      note("Fin du son.");
     });
 
     audio.addEventListener("error", () => {
