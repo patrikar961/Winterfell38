@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="description" content="Découvrez le catalogue, consultez les médias des produits et contactez la boutique." />
   <meta name="theme-color" content="#12061f" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -198,23 +198,27 @@
         webApp.ready();
         webApp.expand();
 
+        // Le mode « expanded » suffit : il reste stable sur toutes les versions
+        // du client Telegram. Le passage en plein écran change le cadrage et
+        // fait sauter le zoom de la page, on ne l'appelle donc jamais.
+
         const syncViewport = () => {
           const height = Number(webApp.viewportHeight) || window.innerHeight;
           document.documentElement.style.setProperty("--miniapp-height", `${height}px`);
         };
 
-        syncViewport();
-        webApp.onEvent("viewportChanged", syncViewport);
+        // La hauteur peut être annoncée avant d'être stabilisée : on regroupe
+        // les recalculs dans une seule animation frame, sinon la page bouge.
+        let raf = 0;
+        const queueSync = () => {
+          cancelAnimationFrame(raf);
+          raf = requestAnimationFrame(syncViewport);
+        };
 
-        // Telegram Bot API 8.0+: ask Telegram to hide its header and use fullscreen.
-        // Older clients keep the expanded Mini App view.
-        if (typeof webApp.requestFullscreen === "function") {
-          try {
-            webApp.requestFullscreen();
-          } catch (error) {
-            console.info("Mode plein écran Telegram non disponible :", error);
-          }
-        }
+        syncViewport();
+        webApp.onEvent("viewportChanged", queueSync);
+        window.addEventListener("resize", queueSync);
+        window.addEventListener("orientationchange", queueSync);
       } catch (error) {
         console.info("Initialisation Telegram Mini App :", error);
       }
