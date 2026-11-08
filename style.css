@@ -15,8 +15,6 @@ html{
   scroll-behavior:smooth;
   min-height:100%;
   min-height:var(--miniapp-height, 100dvh);
-  /* Supprime le rebond elastique qui fait bouger le cadrage dans la Mini App */
-  overscroll-behavior-y:none;
 }
 body{
   font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
@@ -192,15 +190,9 @@ h1 em{background:var(--gradient);-webkit-background-clip:text;background-clip:te
 .filters{display:flex;flex-wrap:wrap;gap:1rem;margin-bottom:2rem}
 label{display:flex;flex-direction:column;gap:.35rem;font-weight:600;font-size:.9rem}
 input,select,textarea{
-  font:inherit;
-  /* 16px minimum : en dessous, Safari iOS zoome tout seul au focus du champ.
-     C'est ce qui faisait sauter le cadrage du formulaire de commande. */
-  font-size:16px;
-  padding:.7rem .9rem;border-radius:12px;
+  font:inherit;padding:.7rem .9rem;border-radius:12px;
   border:2px solid var(--border);background:var(--surface);color:var(--text);
 }
-/* Le champ de quantite suit la meme regle : jamais moins de 16px. */
-.stepper input{font-size:16px}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:var(--ring)}
 textarea{min-height:90px;resize:vertical}
 select{appearance:none;-webkit-appearance:none;padding-right:2.2rem;
