@@ -135,7 +135,9 @@
     volumeLabel = panel.querySelector("[data-music-val]");
 
     audio = new Audio();
-    audio.preload = "none";
+    /* "auto" au lieu de "none" : le son se télécharge dès l'ouverture
+       de la page, sinon il démarre une à deux secondes après le clic. */
+    audio.preload = "auto";
     audio.loop = false;
 
     applyVolume(false);
@@ -201,29 +203,48 @@
     persist();
   }
 
-  /* Le navigateur refuse la lecture automatique : on profite du premier
-     appui de la visite pour relancer la musique là où elle s'était
-     arrêtée, sans rien demander. */
+  /* Le navigateur peut refuser la lecture automatique. On tente quand même
+     tout de suite : le son étant déjà téléchargé, il part sans attente.
+     Si c'est refusé, la lecture reprend au premier appui. */
   function armResume() {
     if (armed) return;
     if (!saved.playing || !tracks.length) return;
 
     armed = true;
 
-    const resume = () => {
-      document.removeEventListener("pointerdown", resume, true);
-      armed = false;
+    audio.muted = saved.muted || isSilent();
+    audio.volume = Math.min(1, toLevel(saved.volume));
 
-      audio.muted = saved.muted || isSilent();
-      audio.volume = Math.min(1, toLevel(saved.volume));
-
+    const start = () => {
       const p = audio.play();
+
       if (p && typeof p.catch === "function") {
-        p.then(() => setPlaying(true)).catch(() => setPlaying(false));
+        p.then(() => setPlaying(true)).catch(() => {
+          /* Refus de lecture automatique : on reprend au premier appui. */
+          const resume = () => {
+            document.removeEventListener("pointerdown", resume, true);
+            armed = false;
+
+            audio.muted = saved.muted || isSilent();
+            audio.volume = Math.min(1, toLevel(saved.volume));
+
+            const q = audio.play();
+            if (q && typeof q.catch === "function") {
+              q.then(() => setPlaying(true)).catch(() => setPlaying(false));
+            }
+          };
+
+          document.addEventListener("pointerdown", resume, true);
+        });
+      } else {
+        setPlaying(true);
       }
     };
 
-    document.addEventListener("pointerdown", resume, true);
+    /* Si les métadonnées ne sont pas encore arrivées, on attend qu'elles
+       le soient : la lecture démarre alors immédiatement après. */
+    if (audio.readyState >= 1) start();
+    else audio.addEventListener("loadedmetadata", start, { once: true });
   }
 
   function togglePlay() {
