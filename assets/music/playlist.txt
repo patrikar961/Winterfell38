@@ -9,7 +9,7 @@
 #   2. écris ici son nom EXACT, avec l'extension
 #
 # Les sons enregistrés (un nom par ligne, ici en bas) :
-chico.mp3
+p.m4a
 
 # ---------------------------------------------------------
 # Exemple :
