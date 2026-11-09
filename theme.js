@@ -6,7 +6,7 @@
    puis poussez sur GitHub (git commit + git push).
    ========================================================= */
 
-const ACTIVE_THEME = "neonNuit"; // <-- changez ce nom, ou créez la vôtre plus bas
+const ACTIVE_THEME = "toxicGreen"; // <-- changez ce nom, ou créez la vôtre plus bas
 
 const THEMES = {
   neonSunset:   { bg:"#12061f", surface:"#1f0b33", text:"#fff4fb", muted:"#c9a8d9", primary:"#ff2e88", secondary:"#ffb400", accent:"#00e5ff", gradient:"linear-gradient(135deg,#ff2e88 0%,#ff7a00 50%,#ffd000 100%)" },
